@@ -11,7 +11,6 @@ const ZONE_STYLES = {
     nodeBg: 'bg-indigo-500',
     nodeRing: 'ring-indigo-200',
     connectorColor: '#a5b4fc',
-    island: 'bg-indigo-200',
     emoji: '💻',
     label: 'Dasar Pemograman',
   },
@@ -23,7 +22,6 @@ const ZONE_STYLES = {
     nodeBg: 'bg-amber-500',
     nodeRing: 'ring-amber-200',
     connectorColor: '#fcd34d',
-    island: 'bg-amber-200',
     emoji: '🧱',
     label: 'Foundational',
   },
@@ -35,15 +33,12 @@ const ZONE_STYLES = {
     nodeBg: 'bg-emerald-500',
     nodeRing: 'ring-emerald-200',
     connectorColor: '#6ee7b7',
-    island: 'bg-emerald-200',
     emoji: '🔧',
     label: 'Tekla API',
   },
 }
 
 /**
- * A single zone (island) on the dashboard map.
- *
  * Props:
  *  category      – category name string
  *  items         – training items for this category
@@ -51,6 +46,7 @@ const ZONE_STYLES = {
  *  users         – all users
  *  currentUser   – currently logged-in user
  *  onItemClick   – (item) => void
+ *  locked        – boolean — true if previous category is not fully completed
  */
 export default function MapZone({
   category,
@@ -59,6 +55,7 @@ export default function MapZone({
   users,
   currentUser,
   onItemClick,
+  locked = false,
 }) {
   const style = ZONE_STYLES[category] || ZONE_STYLES['Foundational']
 
@@ -69,23 +66,37 @@ export default function MapZone({
   const pct = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0
 
   return (
-    <div className="flex flex-col items-center gap-0 select-none min-w-[220px]">
+    <div className={`flex flex-col items-center gap-0 select-none min-w-[220px] transition-opacity duration-300 ${locked ? 'opacity-50' : 'opacity-100'}`}>
       {/* Zone header card */}
-      <div className={`${style.lightBg} ${style.border} border-2 rounded-2xl px-5 py-3 text-center w-full mb-4`}>
+      <div className={`${locked ? 'bg-slate-100 border-slate-200' : style.lightBg + ' ' + style.border} border-2 rounded-2xl px-5 py-3 text-center w-full mb-4`}>
         <div className="flex items-center justify-center gap-2 mb-1">
-          <span className="text-xl">{style.emoji}</span>
-          <span className={`font-bold text-sm ${style.text}`}>{style.label}</span>
+          {locked ? (
+            <span className="text-xl">🔒</span>
+          ) : (
+            <span className="text-xl">{style.emoji}</span>
+          )}
+          <span className={`font-bold text-sm ${locked ? 'text-slate-400' : style.text}`}>
+            {style.label}
+          </span>
         </div>
-        {/* Progress bar */}
-        <div className="w-full bg-white rounded-full h-2 mt-2">
-          <div
-            className={`${style.bg} h-2 rounded-full transition-all duration-500`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <p className="text-xs text-slate-500 mt-1">
-          {completedCount}/{items.length} completed
-        </p>
+
+        {locked ? (
+          <p className="text-xs text-slate-400 mt-1">
+            Complete the previous category first
+          </p>
+        ) : (
+          <>
+            <div className="w-full bg-white rounded-full h-2 mt-2">
+              <div
+                className={`${style.bg} h-2 rounded-full transition-all duration-500`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              {completedCount}/{items.length} completed
+            </p>
+          </>
+        )}
       </div>
 
       {/* Checkpoint nodes */}
@@ -104,17 +115,16 @@ export default function MapZone({
                 style={style}
                 done={currentUserDone}
                 usersOnNode={usersOnNode}
-                currentUser={currentUser}
-                onClick={() => onItemClick(item)}
+                locked={locked}
+                onClick={locked ? undefined : () => onItemClick(item)}
                 index={idx}
               />
-              {/* Connector path */}
               {!isLast && (
                 <div className="flex flex-col items-center w-8 -my-1 z-0">
                   <svg width="16" height="32" viewBox="0 0 16 32" fill="none">
                     <line
                       x1="8" y1="0" x2="8" y2="32"
-                      stroke={style.connectorColor}
+                      stroke={locked ? '#cbd5e1' : style.connectorColor}
                       strokeWidth="3"
                       strokeLinecap="round"
                       strokeDasharray="4 4"
@@ -130,16 +140,17 @@ export default function MapZone({
       {/* Finish flag */}
       {items.length > 0 && (
         <div className="mt-3 flex flex-col items-center gap-1">
-          <div className={`w-0.5 h-4 ${style.bg} opacity-50`} />
-          <span className="text-lg">{pct === 100 ? '🏆' : '🏁'}</span>
+          <div className={`w-0.5 h-4 ${locked ? 'bg-slate-300' : style.bg} opacity-50`} />
+          <span className="text-lg">
+            {locked ? '🔒' : pct === 100 ? '🏆' : '🏁'}
+          </span>
         </div>
       )}
     </div>
   )
 }
 
-function CheckpointNode({ item, style, done, usersOnNode, currentUser, onClick, index }) {
-  // Alternate left/right for a path-like feel
+function CheckpointNode({ item, style, done, usersOnNode, locked, onClick, index }) {
   const offset = index % 2 === 0 ? '' : 'translate-x-8'
 
   return (
@@ -147,50 +158,52 @@ function CheckpointNode({ item, style, done, usersOnNode, currentUser, onClick, 
       {/* Node button */}
       <button
         onClick={onClick}
+        disabled={locked}
         className={`
           relative w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-xs
-          transition-all duration-200 active:scale-95
-          ${done ? style.nodeBg + ' ring-4 ' + style.nodeRing : 'bg-slate-300 ring-4 ring-slate-100'}
-          hover:scale-110 cursor-pointer
+          transition-all duration-200
+          ${locked
+            ? 'bg-slate-200 ring-4 ring-slate-100 cursor-not-allowed'
+            : done
+              ? style.nodeBg + ' ring-4 ' + style.nodeRing + ' hover:scale-110 active:scale-95 cursor-pointer'
+              : 'bg-slate-300 ring-4 ring-slate-100 hover:scale-110 active:scale-95 cursor-pointer'
+          }
         `}
-        title={item.title}
+        title={locked ? 'Complete the previous category to unlock' : item.title}
       >
-        {done ? (
+        {locked ? (
+          <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        ) : done ? (
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         ) : (
-          <span className="text-lg">⭐</span>
-        )}
-
-        {/* Pulse ring for active/incomplete */}
-        {!done && (
-          <span className="absolute inset-0 rounded-full animate-ping bg-slate-200 opacity-50" />
+          <>
+            <span className="text-lg">⭐</span>
+            <span className="absolute inset-0 rounded-full animate-ping bg-slate-200 opacity-50" />
+          </>
         )}
       </button>
 
       {/* Label card */}
       <div
+        onClick={locked ? undefined : onClick}
         className={`
-          ${style.lightBg} ${style.border} border rounded-xl px-3 py-2 cursor-pointer
-          hover:scale-105 transition-transform duration-150 max-w-[130px]
+          ${locked ? 'bg-slate-100 border-slate-200' : style.lightBg + ' ' + style.border}
+          border rounded-xl px-3 py-2 max-w-[130px]
+          ${locked ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105 transition-transform duration-150'}
         `}
-        onClick={onClick}
       >
-        <p className="text-xs font-semibold text-slate-700 leading-tight line-clamp-2">
+        <p className={`text-xs font-semibold leading-tight line-clamp-2 ${locked ? 'text-slate-400' : 'text-slate-700'}`}>
           {item.title}
         </p>
-        {/* User avatars on this node */}
-        {usersOnNode.length > 0 && (
+        {!locked && usersOnNode.length > 0 && (
           <div className="flex -space-x-1 mt-1.5">
             {usersOnNode.slice(0, 4).map((u) => (
-              <UserAvatar
-                key={u.id}
-                user={u}
-                size="xs"
-                ring
-                tooltip
-              />
+              <UserAvatar key={u.id} user={u} size="xs" ring tooltip />
             ))}
             {usersOnNode.length > 4 && (
               <span className="text-[9px] text-slate-500 ml-1 self-center">

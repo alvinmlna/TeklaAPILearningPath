@@ -1,24 +1,83 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { getSystemInfo, readData, writeData } from '../lib/storage'
-import UserAvatar from '../components/UserAvatar'
 
 function generateId() {
   return `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 }
 
+// Modes for the photo picker
+const MODE_IDLE = 'idle'       // nothing chosen yet
+const MODE_PREVIEW = 'preview' // file chosen, showing preview
+const MODE_CAMERA = 'camera'   // live webcam stream active
+
 export default function Register({ onRegistered }) {
   const [name, setName] = useState('')
-  const [photo, setPhoto] = useState(null) // base64 string
+  const [photo, setPhoto] = useState(null)   // final base64 string
+  const [photoMode, setPhotoMode] = useState(MODE_IDLE)
   const [sysInfo, setSysInfo] = useState({ username: '', hostname: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [cameraError, setCameraError] = useState('')
+
   const fileRef = useRef()
+  const videoRef = useRef()
+  const canvasRef = useRef()
+  const streamRef = useRef(null)
 
   useEffect(() => {
     getSystemInfo().then(setSysInfo).catch(console.error)
+    return () => stopCamera()
   }, [])
 
-  const handlePhotoChange = (e) => {
+  // ── Camera helpers ────────────────────────────────────────────────────────
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+    }
+  }
+
+  const startCamera = async () => {
+    setCameraError('')
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+        audio: false,
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+      setPhotoMode(MODE_CAMERA)
+    } catch (err) {
+      setCameraError('Camera not available. Please upload a photo instead.')
+    }
+  }
+
+  const captureSnapshot = () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    canvas.width = video.videoWidth || 640
+    canvas.height = video.videoHeight || 480
+    canvas.getContext('2d').drawImage(video, 0, 0)
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+    setPhoto(dataUrl)
+    setPhotoMode(MODE_PREVIEW)
+    stopCamera()
+    setError('')
+  }
+
+  const cancelCamera = () => {
+    stopCamera()
+    setPhotoMode(photo ? MODE_PREVIEW : MODE_IDLE)
+  }
+
+  // ── File upload ───────────────────────────────────────────────────────────
+
+  const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
@@ -26,15 +85,32 @@ export default function Register({ onRegistered }) {
       return
     }
     const reader = new FileReader()
-    reader.onload = (ev) => setPhoto(ev.target.result)
+    reader.onload = (ev) => {
+      setPhoto(ev.target.result)
+      setPhotoMode(MODE_PREVIEW)
+      setError('')
+    }
     reader.readAsDataURL(file)
-    setError('')
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
   }
+
+  const resetPhoto = () => {
+    stopCamera()
+    setPhoto(null)
+    setPhotoMode(MODE_IDLE)
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!name.trim()) {
       setError('Please enter your name.')
+      return
+    }
+    if (!photo) {
+      setError('A profile photo is required. Please upload or take a selfie.')
       return
     }
     setLoading(true)
@@ -45,7 +121,7 @@ export default function Register({ onRegistered }) {
       const newUser = {
         id: generateId(),
         name: name.trim(),
-        photo: photo || null,
+        photo,
         windowsAccount: sysInfo.username,
         computerName: sysInfo.hostname,
         registeredAt: new Date().toISOString(),
@@ -64,11 +140,13 @@ export default function Register({ onRegistered }) {
     }
   }
 
+  // ── Render ────────────────────────────────────────────────────────────────
+
   return (
-    <div className="min-h-screen bg-indigo-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-indigo-50 flex items-center justify-center p-6 overflow-auto">
       {/* Decorative blobs */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-200 rounded-full -translate-x-1/2 -translate-y-1/2 opacity-40" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-amber-200 rounded-full translate-x-1/3 translate-y-1/3 opacity-30" />
+      <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-200 rounded-full -translate-x-1/2 -translate-y-1/2 opacity-40 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-amber-200 rounded-full translate-x-1/3 translate-y-1/3 opacity-30 pointer-events-none" />
 
       <div className="relative bg-white rounded-3xl p-10 w-full max-w-md">
         {/* Header */}
@@ -83,38 +161,140 @@ export default function Register({ onRegistered }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Photo upload */}
-          <div className="flex flex-col items-center gap-3">
-            <div
-              className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center cursor-pointer border-4 border-indigo-200 hover:border-indigo-400 transition-colors overflow-hidden"
-              onClick={() => fileRef.current?.click()}
-            >
-              {photo ? (
-                <img src={photo} alt="avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-4xl">👤</span>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="text-sm text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
-            >
-              {photo ? 'Change photo' : 'Upload photo'}
-            </button>
+
+          {/* ── Photo section ─────────────────────────────────────────────── */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-3">
+              Profile Photo
+              <span className="ml-1 text-rose-500">*</span>
+              <span className="ml-2 text-xs font-normal text-slate-400">required</span>
+            </label>
+
+            {/* IDLE: no photo yet */}
+            {photoMode === MODE_IDLE && (
+              <div className={`border-2 border-dashed rounded-2xl p-6 text-center transition-colors ${error && !photo ? 'border-rose-300 bg-rose-50' : 'border-slate-200 hover:border-indigo-300'}`}>
+                {/* Placeholder avatar */}
+                <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-10 h-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                      d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                </div>
+                <p className="text-sm font-semibold text-slate-600 mb-1">Add your photo</p>
+                <p className="text-xs text-slate-400 mb-4">Your photo appears on the training map for other trainees to see.</p>
+                <div className="flex justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold text-sm px-4 py-2 rounded-xl transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    Upload
+                  </button>
+                  <button
+                    type="button"
+                    onClick={startCamera}
+                    className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-semibold text-sm px-4 py-2 rounded-xl transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                    </svg>
+                    Take Selfie
+                  </button>
+                </div>
+                {cameraError && (
+                  <p className="mt-3 text-xs text-amber-600 font-medium">{cameraError}</p>
+                )}
+              </div>
+            )}
+
+            {/* CAMERA: live viewfinder */}
+            {photoMode === MODE_CAMERA && (
+              <div className="rounded-2xl overflow-hidden border-2 border-emerald-300">
+                <div className="relative bg-black">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full"
+                    style={{ maxHeight: '240px', objectFit: 'cover' }}
+                  />
+                  {/* Circular face guide */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-32 h-32 rounded-full border-4 border-white border-opacity-60" />
+                  </div>
+                </div>
+                <div className="flex gap-3 p-3 bg-emerald-50">
+                  <button
+                    type="button"
+                    onClick={captureSnapshot}
+                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm py-2.5 rounded-xl transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                    </svg>
+                    Capture
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelCamera}
+                    className="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 bg-white rounded-xl border border-slate-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* PREVIEW: photo chosen */}
+            {photoMode === MODE_PREVIEW && photo && (
+              <div className="flex items-center gap-4">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-200 flex-shrink-0">
+                  <img src={photo} alt="Your photo" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-semibold text-slate-700">Looking good! 🎉</p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      className="text-xs text-indigo-600 font-medium hover:text-indigo-800 px-3 py-1.5 bg-indigo-50 rounded-lg transition-colors"
+                    >
+                      Upload different
+                    </button>
+                    <button
+                      type="button"
+                      onClick={startCamera}
+                      className="text-xs text-emerald-600 font-medium hover:text-emerald-800 px-3 py-1.5 bg-emerald-50 rounded-lg transition-colors"
+                    >
+                      Retake
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Hidden inputs */}
             <input
               ref={fileRef}
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handlePhotoChange}
+              onChange={handleFileChange}
             />
+            {/* Hidden canvas for snapshot */}
+            <canvas ref={canvasRef} className="hidden" />
           </div>
 
-          {/* Name */}
+          {/* ── Name ──────────────────────────────────────────────────────── */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Your Name
+              Your Name <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
@@ -126,7 +306,7 @@ export default function Register({ onRegistered }) {
             />
           </div>
 
-          {/* System info (read-only) */}
+          {/* ── System info ───────────────────────────────────────────────── */}
           <div className="bg-slate-50 rounded-2xl p-4 space-y-2">
             <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
               Auto-detected
@@ -143,21 +323,31 @@ export default function Register({ onRegistered }) {
             </div>
           </div>
 
-          {/* Error */}
+          {/* ── Error ─────────────────────────────────────────────────────── */}
           {error && (
             <p className="text-rose-500 text-sm font-medium bg-rose-50 rounded-xl px-4 py-2">
               {error}
             </p>
           )}
 
-          {/* Submit */}
+          {/* ── Submit ────────────────────────────────────────────────────── */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-xl py-3 transition-colors disabled:opacity-50"
+            className={`w-full font-semibold rounded-xl py-3 transition-colors
+              ${!photo
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                : 'bg-indigo-500 hover:bg-indigo-600 text-white disabled:opacity-50'
+              }`}
           >
             {loading ? 'Registering…' : 'Start Training →'}
           </button>
+
+          {!photo && (
+            <p className="text-center text-xs text-slate-400">
+              Upload or take a selfie to continue
+            </p>
+          )}
         </form>
       </div>
     </div>

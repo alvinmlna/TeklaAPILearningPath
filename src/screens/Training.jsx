@@ -102,6 +102,17 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
     [trainingItems]
   )
 
+  // Mirror the same lock logic as Dashboard
+  const isCategoryLocked = (idx) => {
+    if (idx === 0) return false
+    const prevCat = CATEGORIES[idx - 1]
+    const prevItems = trainingItems.filter((i) => i.category === prevCat)
+    if (prevItems.length === 0) return false
+    return !prevItems.every((item) =>
+      progress.some((p) => p.itemId === item.id && p.userId === currentUser?.id)
+    )
+  }
+
   const totalDone = trainingItems.filter((i) =>
     isCompleted(progress, currentUser?.id, i.id)
   ).length
@@ -140,7 +151,8 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
         {/* ── Sidebar ────────────────────────────────────────────────────────── */}
         <aside className="w-60 flex-shrink-0 bg-white border-r-2 border-slate-100 overflow-y-auto thin-scrollbar flex flex-col">
           <div className="p-3 space-y-1">
-            {CATEGORIES.map((cat) => {
+            {CATEGORIES.map((cat, catIdx) => {
+              const locked = isCategoryLocked(catIdx)
               const catItems = itemsByCategory[cat] || []
               const catDone = catItems.filter((i) =>
                 isCompleted(progress, currentUser?.id, i.id)
@@ -148,14 +160,22 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
               const colors = CATEGORY_COLORS[cat]
 
               return (
-                <div key={cat}>
+                <div key={cat} className={locked ? 'opacity-50' : ''}>
                   {/* Category header */}
-                  <div className={`flex items-center justify-between px-3 py-2 rounded-xl ${colors.light}`}>
-                    <span className={`text-xs font-bold uppercase tracking-wide ${colors.text}`}>
-                      {cat}
-                    </span>
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${colors.badge}`}>
-                      {catDone}/{catItems.length}
+                  <div className={`flex items-center justify-between px-3 py-2 rounded-xl ${locked ? 'bg-slate-100' : colors.light}`}>
+                    <div className="flex items-center gap-1.5">
+                      {locked && (
+                        <svg className="w-3 h-3 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      )}
+                      <span className={`text-xs font-bold uppercase tracking-wide ${locked ? 'text-slate-400' : colors.text}`}>
+                        {cat}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${locked ? 'bg-slate-200 text-slate-400' : colors.badge}`}>
+                      {locked ? '🔒' : `${catDone}/${catItems.length}`}
                     </span>
                   </div>
 
@@ -167,23 +187,30 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                       return (
                         <button
                           key={item.id}
-                          onClick={() => handleSelect(item)}
+                          onClick={locked ? undefined : () => handleSelect(item)}
+                          disabled={locked}
                           className={`
                             w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors
-                            ${isActive
-                              ? colors.activeBg + ' ' + colors.activeText
-                              : 'hover:bg-slate-50 text-slate-700'}
+                            ${locked
+                              ? 'cursor-not-allowed text-slate-400'
+                              : isActive
+                                ? colors.activeBg + ' ' + colors.activeText
+                                : 'hover:bg-slate-50 text-slate-700'}
                           `}
                         >
                           {/* Status dot */}
                           <span className={`
                             flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center
-                            ${itemDone
-                              ? (isActive ? 'bg-white bg-opacity-30' : colors.dot)
-                              : (isActive ? 'bg-white bg-opacity-20' : 'bg-slate-200')}
+                            ${locked
+                              ? 'bg-slate-200'
+                              : itemDone
+                                ? (isActive ? 'bg-white bg-opacity-30' : colors.dot)
+                                : (isActive ? 'bg-white bg-opacity-20' : 'bg-slate-200')}
                           `}>
-                            {itemDone ? (
-                              <svg className={`w-3 h-3 ${isActive ? 'text-white' : 'text-white'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            {locked ? (
+                              <span className="text-[8px] text-slate-400">🔒</span>
+                            ) : itemDone ? (
+                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                               </svg>
                             ) : (

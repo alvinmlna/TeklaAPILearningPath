@@ -80,6 +80,20 @@ export default function Dashboard({
     [trainingItems]
   )
 
+  // A category is locked if the user hasn't completed every item in the previous category.
+  const isCategoryLocked = useCallback(
+    (idx) => {
+      if (idx === 0) return false
+      const prevCat = CATEGORIES[idx - 1]
+      const prevItems = trainingItems.filter((i) => i.category === prevCat)
+      if (prevItems.length === 0) return false
+      return !prevItems.every((item) =>
+        progress.some((p) => p.itemId === item.id && p.userId === currentUser?.id)
+      )
+    },
+    [trainingItems, progress, currentUser]
+  )
+
   return (
     <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
       {/* ── Top bar ─────────────────────────────────────────────────────────── */}
@@ -166,27 +180,27 @@ export default function Dashboard({
 
           {/* Zones row */}
           <div className="flex items-start justify-center gap-0 px-8 pb-16 pt-4 min-w-max mx-auto relative z-10">
-            {CATEGORIES.map((cat, idx) => (
-              <React.Fragment key={cat}>
-                <div className="flex flex-col items-center">
-                  <MapZone
-                    category={cat}
-                    items={itemsByCategory(cat)}
-                    progress={progress}
-                    users={users}
-                    currentUser={currentUser}
-                    onItemClick={onOpenTraining}
-                  />
-                </div>
-                {idx < CATEGORIES.length - 1 && (
-                  <ZoneConnector
-                    color={
-                      idx === 0 ? '#a5b4fc' : '#fcd34d'
-                    }
-                  />
-                )}
-              </React.Fragment>
-            ))}
+            {CATEGORIES.map((cat, idx) => {
+              const locked = isCategoryLocked(idx)
+              return (
+                <React.Fragment key={cat}>
+                  <div className="flex flex-col items-center">
+                    <MapZone
+                      category={cat}
+                      items={itemsByCategory(cat)}
+                      progress={progress}
+                      users={users}
+                      currentUser={currentUser}
+                      onItemClick={onOpenTraining}
+                      locked={locked}
+                    />
+                  </div>
+                  {idx < CATEGORIES.length - 1 && (
+                    <ZoneConnector color={idx === 0 ? '#a5b4fc' : '#fcd34d'} />
+                  )}
+                </React.Fragment>
+              )
+            })}
           </div>
         </div>
 
