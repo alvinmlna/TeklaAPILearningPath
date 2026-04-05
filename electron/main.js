@@ -55,7 +55,24 @@ function isLocalFallbackPath(dataPath) {
   return dataPath === path.join(app.getPath('userData'), 'data.json')
 }
 
-const DEFAULT_DATA = {
+// ─── Default data — loaded from bundled data.json seed file ──────────────────
+function getDefaultData() {
+  const candidates = [
+    path.join(app.getAppPath(), 'data.json'),
+    path.join(__dirname, '..', 'data.json'),
+  ]
+  for (const seedPath of candidates) {
+    try {
+      if (fs.existsSync(seedPath)) {
+        const d = JSON.parse(fs.readFileSync(seedPath, 'utf-8'))
+        return { ...d, users: [], progress: [] }
+      }
+    } catch {}
+  }
+  return { users: [], progress: [], trainingItems: [] }
+}
+
+const LEGACY_DEFAULT_DATA = {
   users: [],
   progress: [],
   trainingItems: [
@@ -164,7 +181,8 @@ function ensureDataFile(dataPath) {
       fs.mkdirSync(dir, { recursive: true })
     }
     if (!fs.existsSync(dataPath)) {
-      fs.writeFileSync(dataPath, JSON.stringify(DEFAULT_DATA, null, 2), 'utf-8')
+      const seed = getDefaultData()
+      fs.writeFileSync(dataPath, JSON.stringify(seed, null, 2), 'utf-8')
     }
   } catch (err) {
     console.error('Failed to initialise data file:', err)
@@ -178,7 +196,7 @@ function readDataFile(dataPath) {
     return JSON.parse(raw)
   } catch (err) {
     console.error('Failed to read data file:', err)
-    return { ...DEFAULT_DATA }
+    return getDefaultData()
   }
 }
 

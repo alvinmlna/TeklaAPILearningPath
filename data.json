@@ -3,98 +3,447 @@
   "progress": [],
   "trainingItems": [
     {
-      "id": "dasar-1",
-      "category": "Dasar Pemograman",
-      "title": "Programming Overview",
-      "description": "Introduction to programming concepts and fundamentals used in Tekla development.",
-      "youtubeUrl": "https://www.youtube.com/watch?v=zOjov-2OZ0E"
+      "id": "pf-1",
+      "category": "Programming Fundamental",
+      "title": "Variable",
+      "description": "Learn how to declare, assign, and use variables to store data in C#.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Sum of Two Numbers",
+        "prompt": "Read two integers, each on its own line, and print their sum.\n\nExample:\nInput: 3 (first line) and 5 (second line)\nOutput: 8",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int a = int.Parse(Console.ReadLine());\n        int b = int.Parse(Console.ReadLine());\n\n        // TODO: Calculate the sum and print it\n\n    }\n}",
+        "testCases": [
+          { "input": "3\n5",   "expected": "8" },
+          { "input": "10\n20", "expected": "30" },
+          { "input": "0\n0",   "expected": "0" },
+          { "input": "-5\n3",  "expected": "-2" }
+        ]
+      }
     },
     {
-      "id": "dasar-2",
-      "category": "Dasar Pemograman",
-      "title": "Visual Studio Overview",
-      "description": "Getting started with Visual Studio IDE — solutions, projects, debugger, and tooling.",
-      "youtubeUrl": "https://www.youtube.com/watch?v=VDom7uoFnqs",
+      "id": "pf-2",
+      "category": "Programming Fundamental",
+      "title": "If Else",
+      "description": "Conditional logic with if-else — decision-making in code.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Number Sign Checker",
+        "prompt": "Read one integer and print:\n- \"Positive\" if it is greater than zero\n- \"Negative\" if it is less than zero\n- \"Zero\" if it equals zero",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int number = int.Parse(Console.ReadLine());\n\n        // TODO: Write your if-else logic here\n\n    }\n}",
+        "testCases": [
+          { "input": "5",   "expected": "Positive" },
+          { "input": "-3",  "expected": "Negative" },
+          { "input": "0",   "expected": "Zero" },
+          { "input": "100", "expected": "Positive" },
+          { "input": "-1",  "expected": "Negative" }
+        ]
+      }
+    },
+    {
+      "id": "pf-3",
+      "category": "Programming Fundamental",
+      "title": "Switch",
+      "description": "Using switch-case for multi-branch conditionals efficiently.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Day of the Week",
+        "prompt": "Read an integer (1–7) and print the corresponding day name.\n1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday,\n5 = Friday, 6 = Saturday, 7 = Sunday.\nFor any other number, print \"Invalid\".",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int day = int.Parse(Console.ReadLine());\n\n        // TODO: Use a switch statement to print the day name\n\n    }\n}",
+        "testCases": [
+          { "input": "1", "expected": "Monday" },
+          { "input": "3", "expected": "Wednesday" },
+          { "input": "5", "expected": "Friday" },
+          { "input": "7", "expected": "Sunday" },
+          { "input": "8", "expected": "Invalid" }
+        ]
+      }
+    },
+    {
+      "id": "pf-4",
+      "category": "Programming Fundamental",
+      "title": "Loop",
+      "description": "Repeating tasks with for, while, and do-while loops.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Count to N",
+        "prompt": "Read one integer N and print all numbers from 1 to N, each on its own line.",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n\n        // TODO: Print numbers from 1 to n using a loop\n\n    }\n}",
+        "testCases": [
+          { "input": "3", "expected": "1\n2\n3" },
+          { "input": "5", "expected": "1\n2\n3\n4\n5" },
+          { "input": "1", "expected": "1" }
+        ]
+      }
+    },
+    {
+      "id": "pf-5",
+      "category": "Programming Fundamental",
+      "title": "Function",
+      "description": "Writing reusable blocks of code with methods and return values.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Calculate Factorial",
+        "prompt": "Complete the Factorial method so that it returns N! (N factorial).\nRemember: 0! = 1, and N! = N × (N-1) × ... × 1.",
+        "starterCode": "using System;\n\nclass Program\n{\n    static long Factorial(int n)\n    {\n        // TODO: Return the factorial of n\n        return 0;\n    }\n\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        Console.WriteLine(Factorial(n));\n    }\n}",
+        "testCases": [
+          { "input": "0",  "expected": "1" },
+          { "input": "1",  "expected": "1" },
+          { "input": "5",  "expected": "120" },
+          { "input": "10", "expected": "3628800" }
+        ]
+      }
+    },
+    {
+      "id": "pf-6",
+      "category": "Programming Fundamental",
+      "title": "List",
+      "description": "Storing and working with collections of data using List<T>.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Reverse a List",
+        "prompt": "Read N on the first line, then N integers each on their own line.\nPrint the numbers in reverse order, each on its own line.",
+        "starterCode": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        List<int> numbers = new List<int>();\n\n        for (int i = 0; i < n; i++)\n        {\n            numbers.Add(int.Parse(Console.ReadLine()));\n        }\n\n        // TODO: Print the numbers in reverse order\n\n    }\n}",
+        "testCases": [
+          { "input": "3\n1\n2\n3",              "expected": "3\n2\n1" },
+          { "input": "5\n10\n20\n30\n40\n50",   "expected": "50\n40\n30\n20\n10" },
+          { "input": "1\n7",                     "expected": "7" }
+        ]
+      }
+    },
+    {
+      "id": "pf-7",
+      "category": "Programming Fundamental",
+      "title": "Filtering List",
+      "description": "Using LINQ and loops to filter collections based on conditions.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Filter Even Numbers",
+        "prompt": "Read N on the first line, then N integers each on their own line.\nPrint only the even numbers, each on its own line.\nIf there are no even numbers, print nothing.",
+        "starterCode": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        List<int> numbers = new List<int>();\n\n        for (int i = 0; i < n; i++)\n        {\n            numbers.Add(int.Parse(Console.ReadLine()));\n        }\n\n        // TODO: Print only even numbers\n\n    }\n}",
+        "testCases": [
+          { "input": "5\n1\n2\n3\n4\n5",    "expected": "2\n4" },
+          { "input": "4\n10\n15\n20\n25",    "expected": "10\n20" },
+          { "input": "3\n1\n3\n5",           "expected": "" }
+        ]
+      }
+    },
+    {
+      "id": "pf-8",
+      "category": "Programming Fundamental",
+      "title": "String Manipulation",
+      "description": "Working with text — substring, replace, split, and formatting.",
+      "youtubeUrl": "",
+      "codeChallenge": {
+        "title": "Reverse and Uppercase",
+        "prompt": "Read one line of text.\nPrint it reversed and converted to uppercase.",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string input = Console.ReadLine();\n\n        // TODO: Reverse the string and print it in uppercase\n\n    }\n}",
+        "testCases": [
+          { "input": "hello",  "expected": "OLLEH" },
+          { "input": "World",  "expected": "DLROW" },
+          { "input": "csharp", "expected": "PRAHSC" },
+          { "input": "Tekla",  "expected": "ALKET" }
+        ]
+      }
+    },
+    {
+      "id": "vs-1",
+      "category": "Visual Studio",
+      "title": "Run & Debug",
+      "description": "F5 to run, setting breakpoints, and stepping through code to find issues.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "vs-2",
+      "category": "Visual Studio",
+      "title": "Solution Explorer",
+      "description": "Understanding the file and project structure of a .NET solution.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "vs-3",
+      "category": "Visual Studio",
+      "title": "NuGet",
+      "description": "Installing and managing third-party packages with NuGet Package Manager.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "vs-4",
+      "category": "Visual Studio",
+      "title": "References",
+      "description": "Adding references to external assemblies and understanding project dependencies.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "vs-5",
+      "category": "Visual Studio",
+      "title": "Github",
+      "description": "Using Git and GitHub inside Visual Studio for version control and collaboration.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "vs-6",
+      "category": "Visual Studio",
+      "title": "Visual Studio Quiz",
+      "description": "Test your Visual Studio knowledge before moving on.",
+      "youtubeUrl": "",
+      "quizOnly": true,
       "quiz": {
         "passMark": 80,
         "questions": [
           {
-            "id": "dasar2-q1",
-            "question": "What is the keyboard shortcut to build a solution in Visual Studio?",
-            "options": ["Ctrl+B", "F5", "Ctrl+Shift+B", "Ctrl+F5"],
-            "correctIndex": 2
-          },
-          {
-            "id": "dasar2-q2",
-            "question": "Which menu in Visual Studio is used to manage NuGet packages?",
-            "options": ["Edit", "Tools", "Project", "Build"],
+            "id": "vs-q1",
+            "question": "What keyboard shortcut starts debugging in Visual Studio?",
+            "options": ["F4", "F5", "F6", "F7"],
             "correctIndex": 1
           },
           {
-            "id": "dasar2-q3",
-            "question": "What does pressing F5 do in Visual Studio?",
-            "options": ["Build the project", "Run without debugging", "Start debugging", "Open the output window"],
-            "correctIndex": 2
-          },
-          {
-            "id": "dasar2-q4",
-            "question": "In Visual Studio, what is a 'Solution'?",
-            "options": [
-              "A single C# file",
-              "A container that holds one or more related projects",
-              "A configuration file for build settings",
-              "A type of Visual Studio extension"
-            ],
+            "id": "vs-q2",
+            "question": "What shortcut adds or removes a breakpoint on the current line?",
+            "options": ["F8", "F9", "F10", "F11"],
             "correctIndex": 1
           },
           {
-            "id": "dasar2-q5",
-            "question": "Which window in Visual Studio shows compile errors and warnings?",
-            "options": ["Solution Explorer", "Output window", "Error List", "Properties window"],
+            "id": "vs-q3",
+            "question": "Which panel shows the files and project structure of your solution?",
+            "options": ["Output", "Error List", "Solution Explorer", "Properties"],
+            "correctIndex": 2
+          },
+          {
+            "id": "vs-q4",
+            "question": "What does 'Step Over' (F10) do while debugging?",
+            "options": ["Stops debugging", "Runs to the next breakpoint", "Steps into a method call", "Executes the current line without entering method calls"],
+            "correctIndex": 3
+          },
+          {
+            "id": "vs-q5",
+            "question": "What is NuGet used for in Visual Studio?",
+            "options": ["Version control", "Installing third-party packages", "Running unit tests", "Building Docker containers"],
+            "correctIndex": 1
+          },
+          {
+            "id": "vs-q6",
+            "question": "Which keyboard shortcut builds the entire solution?",
+            "options": ["Ctrl+B", "Ctrl+F5", "Ctrl+Shift+B", "F6"],
+            "correctIndex": 2
+          },
+          {
+            "id": "vs-q7",
+            "question": "What does F11 do while debugging?",
+            "options": ["Step Over", "Step Into", "Step Out", "Continue"],
+            "correctIndex": 1
+          },
+          {
+            "id": "vs-q8",
+            "question": "Where can you see the current values of variables while debugging?",
+            "options": ["Solution Explorer", "Error List", "Locals or Watch window", "Output window"],
+            "correctIndex": 2
+          },
+          {
+            "id": "vs-q9",
+            "question": "What is a 'Reference' in a Visual Studio project?",
+            "options": ["A comment in the code", "A link to an external library or assembly", "A database connection string", "A Git branch"],
+            "correctIndex": 1
+          },
+          {
+            "id": "vs-q10",
+            "question": "What does 'Manage NuGet Packages' allow you to do?",
+            "options": ["Delete the project", "Change project build settings", "Install or uninstall packages", "Run automated tests"],
             "correctIndex": 2
           }
         ]
       }
     },
     {
-      "id": "dasar-3",
-      "category": "Dasar Pemograman",
-      "title": "WinForm Overview",
-      "description": "Building desktop UIs with Windows Forms — controls, events, and layouts.",
-      "youtubeUrl": "https://www.youtube.com/watch?v=UBs_Fk4lBBs"
+      "id": "wf-1",
+      "category": "Windows Form",
+      "title": "Type of Application",
+      "description": "Understanding what a Windows Forms desktop application is and when to use it.",
+      "youtubeUrl": ""
     },
     {
-      "id": "found-1",
-      "category": "Foundational",
-      "title": "If-Else Statements",
-      "description": "Conditional logic with if-else — decision-making in code.",
-      "youtubeUrl": "https://www.youtube.com/watch?v=HQS_y0GY8-Y",
-      "codeChallenge": {
-        "title": "Number Sign Checker",
-        "prompt": "Write a C# program that reads one integer from standard input and prints exactly one of the following words:\n- \"Positive\" if the number is greater than zero\n- \"Negative\" if the number is less than zero\n- \"Zero\" if the number equals zero\n\nDo not print anything else — no extra spaces or newlines beyond what Console.WriteLine adds.",
-        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int number = int.Parse(Console.ReadLine());\n\n        // Write your if-else logic here\n\n    }\n}",
-        "testCases": [
-          { "input": "5",  "expected": "Positive" },
-          { "input": "-3", "expected": "Negative" },
-          { "input": "0",  "expected": "Zero"     },
-          { "input": "100","expected": "Positive" },
-          { "input": "-1", "expected": "Negative" }
+      "id": "wf-2",
+      "category": "Windows Form",
+      "title": "How it Works",
+      "description": "The event-driven model — how forms, controls, and events interact at runtime.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "wf-3",
+      "category": "Windows Form",
+      "title": "How to Design a UI",
+      "description": "Using the Visual Studio designer to drag, drop, and configure controls.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "wf-4",
+      "category": "Windows Form",
+      "title": "Windows Form Quiz",
+      "description": "Test your Windows Forms knowledge before moving on.",
+      "youtubeUrl": "",
+      "quizOnly": true,
+      "quiz": {
+        "passMark": 80,
+        "questions": [
+          {
+            "id": "wf-q1",
+            "question": "What type of application is a Windows Forms app?",
+            "options": ["Web application", "Mobile application", "Desktop GUI application", "Console application"],
+            "correctIndex": 2
+          },
+          {
+            "id": "wf-q2",
+            "question": "Which base class does every Windows Form inherit from?",
+            "options": ["Application", "Control", "System.Windows.Forms.Form", "UserControl"],
+            "correctIndex": 2
+          },
+          {
+            "id": "wf-q3",
+            "question": "What is an 'event' in Windows Forms?",
+            "options": ["A database record", "An action triggered by user interaction such as clicking or typing", "A type of variable", "A file format"],
+            "correctIndex": 1
+          },
+          {
+            "id": "wf-q4",
+            "question": "How do you create a button click handler using the Visual Studio designer?",
+            "options": ["Write it manually only", "Right-click the button and choose Properties", "Double-click the button in the designer", "Drag from the Toolbox"],
+            "correctIndex": 2
+          },
+          {
+            "id": "wf-q5",
+            "question": "What does Application.Run() do in a Windows Forms app?",
+            "options": ["Compiles the application", "Closes the application", "Starts the message loop and shows the main form", "Connects to a database"],
+            "correctIndex": 2
+          },
+          {
+            "id": "wf-q6",
+            "question": "Which control displays text that the user cannot edit?",
+            "options": ["TextBox", "Label", "Button", "ComboBox"],
+            "correctIndex": 1
+          },
+          {
+            "id": "wf-q7",
+            "question": "What property sets the text shown in a Form's title bar?",
+            "options": ["Name", "Title", "Text", "Caption"],
+            "correctIndex": 2
+          },
+          {
+            "id": "wf-q8",
+            "question": "What file contains the auto-generated layout code created by the designer?",
+            "options": ["Program.cs", "App.config", "Form1.cs", "Form1.Designer.cs"],
+            "correctIndex": 3
+          }
         ]
       }
     },
     {
-      "id": "found-2",
-      "category": "Foundational",
-      "title": "Switch Statement",
-      "description": "Using switch-case for multi-branch conditionals efficiently.",
-      "youtubeUrl": "https://www.youtube.com/watch?v=7Bc4CtE3G9k"
+      "id": "ta-1",
+      "category": "Tekla Open API",
+      "title": "How to Connect with Tekla",
+      "description": "Setting up your project and establishing a connection to a running Tekla Structures model.",
+      "youtubeUrl": ""
     },
     {
-      "id": "tekla-1",
-      "category": "Tekla API",
-      "title": "Connecting to Tekla",
-      "description": "Setting up and connecting to Tekla Structures via the Open API.",
-      "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      "id": "ta-2",
+      "category": "Tekla Open API",
+      "title": "Model Object and Picker Class",
+      "description": "Working with model objects and using the Picker class to select objects interactively.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "ta-3",
+      "category": "Tekla Open API",
+      "title": "Read and Write UDA",
+      "description": "Reading and writing User Defined Attributes on Tekla model objects.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "ta-4",
+      "category": "Tekla Open API",
+      "title": "Tekla Open API Quiz",
+      "description": "Test your Tekla Open API knowledge before moving on.",
+      "youtubeUrl": "",
+      "quizOnly": true,
+      "quiz": {
+        "passMark": 80,
+        "questions": [
+          {
+            "id": "ta-q1",
+            "question": "What is the main namespace for Tekla Structures API model objects?",
+            "options": ["Tekla.Structures", "Tekla.Structures.Model", "Tekla.API.Model", "Tekla.Structures.Drawing"],
+            "correctIndex": 1
+          },
+          {
+            "id": "ta-q2",
+            "question": "How do you check if your app is connected to Tekla Structures?",
+            "options": ["model.IsOpen()", "model.GetConnectionStatus()", "Tekla.Connect()", "model.Ping()"],
+            "correctIndex": 1
+          },
+          {
+            "id": "ta-q3",
+            "question": "What class represents a steel beam in the Tekla Structures API?",
+            "options": ["Column", "Part", "Beam", "SteelPart"],
+            "correctIndex": 2
+          },
+          {
+            "id": "ta-q4",
+            "question": "What method saves a new object into the Tekla model?",
+            "options": ["object.Save()", "object.Add()", "model.Add(object)", "object.Insert()"],
+            "correctIndex": 3
+          },
+          {
+            "id": "ta-q5",
+            "question": "What is a UDA (User Defined Attribute) in Tekla?",
+            "options": ["A custom UI window", "A custom data field attached to model objects", "A type of beam connection", "A drawing view"],
+            "correctIndex": 1
+          },
+          {
+            "id": "ta-q6",
+            "question": "Which class lets the user interactively pick objects from the Tekla model?",
+            "options": ["Selector", "ModelObjectSelector", "Picker", "ObjectPicker"],
+            "correctIndex": 2
+          },
+          {
+            "id": "ta-q7",
+            "question": "What method saves all pending changes back to the Tekla model?",
+            "options": ["model.Save()", "model.Apply()", "model.CommitChanges()", "model.Update()"],
+            "correctIndex": 2
+          },
+          {
+            "id": "ta-q8",
+            "question": "To read a string UDA from a model object, which method do you use?",
+            "options": ["object.GetUDA(\"name\", out value)", "object.GetUserProperty(\"name\", ref value)", "GetValue(\"name\")", "object.UDA.Get(\"name\")"],
+            "correctIndex": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "im-1",
+      "category": "Intermediate",
+      "title": "Learn More About Github",
+      "description": "Branching, pull requests, merge conflicts, and team workflow with Git and GitHub.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "im-2",
+      "category": "Intermediate",
+      "title": "Error Handling",
+      "description": "Using try-catch-finally, custom exceptions, and writing resilient code.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "im-3",
+      "category": "Intermediate",
+      "title": "Debugging Code",
+      "description": "Advanced debugging techniques — call stack, watch expressions, conditional breakpoints.",
+      "youtubeUrl": ""
+    },
+    {
+      "id": "im-4",
+      "category": "Intermediate",
+      "title": "3D Geometry Basics",
+      "description": "Points, vectors, coordinate systems, and basic transformations used in Tekla API.",
+      "youtubeUrl": ""
     }
   ]
 }

@@ -5,10 +5,10 @@ import CodeChallenge from '../components/CodeChallenge'
 import Quiz from '../components/Quiz'
 import { markComplete, isCompleted, completedAt, getUsersOnNode } from '../lib/storage'
 
-const CATEGORIES = ['Dasar Pemograman', 'Foundational', 'Tekla API']
+const CATEGORIES = ['Programming Fundamental', 'Visual Studio', 'Windows Form', 'Tekla Open API', 'Intermediate']
 
 const CATEGORY_COLORS = {
-  'Dasar Pemograman': {
+  'Programming Fundamental': {
     light: 'bg-indigo-50',
     border: 'border-indigo-200',
     text: 'text-indigo-700',
@@ -18,17 +18,27 @@ const CATEGORY_COLORS = {
     dot: 'bg-indigo-500',
     accent: 'border-l-indigo-500',
   },
-  'Foundational': {
-    light: 'bg-amber-50',
-    border: 'border-amber-200',
-    text: 'text-amber-700',
-    badge: 'bg-amber-100 text-amber-700',
-    activeBg: 'bg-amber-500',
+  'Visual Studio': {
+    light: 'bg-violet-50',
+    border: 'border-violet-200',
+    text: 'text-violet-700',
+    badge: 'bg-violet-100 text-violet-700',
+    activeBg: 'bg-violet-600',
     activeText: 'text-white',
-    dot: 'bg-amber-500',
-    accent: 'border-l-amber-500',
+    dot: 'bg-violet-500',
+    accent: 'border-l-violet-500',
   },
-  'Tekla API': {
+  'Windows Form': {
+    light: 'bg-sky-50',
+    border: 'border-sky-200',
+    text: 'text-sky-700',
+    badge: 'bg-sky-100 text-sky-700',
+    activeBg: 'bg-sky-600',
+    activeText: 'text-white',
+    dot: 'bg-sky-500',
+    accent: 'border-l-sky-500',
+  },
+  'Tekla Open API': {
     light: 'bg-emerald-50',
     border: 'border-emerald-200',
     text: 'text-emerald-700',
@@ -37,6 +47,16 @@ const CATEGORY_COLORS = {
     activeText: 'text-white',
     dot: 'bg-emerald-500',
     accent: 'border-l-emerald-500',
+  },
+  'Intermediate': {
+    light: 'bg-orange-50',
+    border: 'border-orange-200',
+    text: 'text-orange-700',
+    badge: 'bg-orange-100 text-orange-700',
+    activeBg: 'bg-orange-500',
+    activeText: 'text-white',
+    dot: 'bg-orange-500',
+    accent: 'border-l-orange-500',
   },
 }
 
@@ -78,7 +98,13 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
   const handleSelect = (item) => {
     setSelectedItem(item)
     setJustMarked(false)
-    setActiveTab('video')
+    if (item.quizOnly || (!item.youtubeUrl && item.quiz)) {
+      setActiveTab('quiz')
+    } else if (!item.youtubeUrl && item.codeChallenge) {
+      setActiveTab('code')
+    } else {
+      setActiveTab('video')
+    }
   }
 
   const handleMarkComplete = async (submittedCode = null) => {
@@ -291,6 +317,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
             const hasChallenge = !!selectedItem.codeChallenge
             const hasQuiz = !!selectedItem.quiz
             const needsGate = hasChallenge || hasQuiz
+            const showVideo = !selectedItem.quizOnly && !!selectedItem.youtubeUrl
 
             if (selectedItemLocked) return (
               <div className="flex items-center justify-center h-full">
@@ -380,6 +407,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
 
                   {/* Tabs */}
                   <div className="flex gap-0 border-b-0">
+                    {showVideo && (
                     <button
                       onClick={() => setActiveTab('video')}
                       className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
@@ -393,6 +421,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                       </svg>
                       Video
                     </button>
+                    )}
 
                     {hasQuiz && (
                       <button
@@ -432,7 +461,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
 
                 {/* ── Tab content ─────────────────────────────────────────────── */}
                 <div className="flex-1 overflow-hidden">
-                  {activeTab === 'video' && (
+                  {activeTab === 'video' && showVideo && (
                     <div className="h-full overflow-y-auto thin-scrollbar p-6">
                       <div className="max-w-3xl mx-auto space-y-5">
                         <VideoPlayer url={selectedItem.youtubeUrl} className="w-full aspect-video" />

@@ -3,7 +3,7 @@ import MapZone from '../components/MapZone'
 import UserAvatar from '../components/UserAvatar'
 import { getLatestItemPerUser } from '../lib/storage'
 
-const CATEGORIES = ['Dasar Pemograman', 'Foundational', 'Tekla API']
+const CATEGORIES = ['Programming Fundamental', 'Visual Studio', 'Windows Form', 'Tekla Open API', 'Intermediate']
 
 // ── Vertical connector between levels ─────────────────────────────────────────
 

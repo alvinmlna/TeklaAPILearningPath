@@ -4,7 +4,7 @@ import UserAvatar from './UserAvatar'
 // ── Zone config ───────────────────────────────────────────────────────────────
 
 const ZONE = {
-  'Dasar Pemograman': {
+  'Programming Fundamental': {
     accent:      'border-indigo-500',
     headerBg:    'bg-indigo-50',
     headerText:  'text-indigo-700',
@@ -18,27 +18,44 @@ const ZONE = {
     trackBg:     'bg-indigo-100',
     lineDone:    '#6366f1',
     lineTodo:    '#c7d2fe',
-    desc:        'Programming fundamentals',
-    label:       'Dasar Pemograman',
+    desc:        'Core programming concepts & C# basics',
+    label:       'Programming Fundamental',
   },
-  'Foundational': {
-    accent:      'border-amber-500',
-    headerBg:    'bg-amber-50',
-    headerText:  'text-amber-700',
-    badgeBg:     'bg-amber-100',
-    badgeText:   'text-amber-700',
-    nodeFill:    'bg-amber-500',
-    nodeRing:    'ring-amber-200',
-    nodeOutline: 'border-amber-500',
-    nodeText:    'text-amber-600',
-    trackFill:   'bg-amber-500',
-    trackBg:     'bg-amber-100',
-    lineDone:    '#f59e0b',
-    lineTodo:    '#fde68a',
-    desc:        'Core logic & control flow',
-    label:       'Foundational',
+  'Visual Studio': {
+    accent:      'border-violet-500',
+    headerBg:    'bg-violet-50',
+    headerText:  'text-violet-700',
+    badgeBg:     'bg-violet-100',
+    badgeText:   'text-violet-700',
+    nodeFill:    'bg-violet-600',
+    nodeRing:    'ring-violet-200',
+    nodeOutline: 'border-violet-500',
+    nodeText:    'text-violet-600',
+    trackFill:   'bg-violet-500',
+    trackBg:     'bg-violet-100',
+    lineDone:    '#7c3aed',
+    lineTodo:    '#ddd6fe',
+    desc:        'IDE setup, debugging & project structure',
+    label:       'Visual Studio',
   },
-  'Tekla API': {
+  'Windows Form': {
+    accent:      'border-sky-500',
+    headerBg:    'bg-sky-50',
+    headerText:  'text-sky-700',
+    badgeBg:     'bg-sky-100',
+    badgeText:   'text-sky-700',
+    nodeFill:    'bg-sky-600',
+    nodeRing:    'ring-sky-200',
+    nodeOutline: 'border-sky-500',
+    nodeText:    'text-sky-600',
+    trackFill:   'bg-sky-500',
+    trackBg:     'bg-sky-100',
+    lineDone:    '#0284c7',
+    lineTodo:    '#bae6fd',
+    desc:        'Desktop UI development with WinForms',
+    label:       'Windows Form',
+  },
+  'Tekla Open API': {
     accent:      'border-emerald-500',
     headerBg:    'bg-emerald-50',
     headerText:  'text-emerald-700',
@@ -52,8 +69,25 @@ const ZONE = {
     trackBg:     'bg-emerald-100',
     lineDone:    '#10b981',
     lineTodo:    '#a7f3d0',
-    desc:        'Tekla Open API mastery',
-    label:       'Tekla API',
+    desc:        'Tekla Structures Open API integration',
+    label:       'Tekla Open API',
+  },
+  'Intermediate': {
+    accent:      'border-orange-500',
+    headerBg:    'bg-orange-50',
+    headerText:  'text-orange-700',
+    badgeBg:     'bg-orange-100',
+    badgeText:   'text-orange-700',
+    nodeFill:    'bg-orange-500',
+    nodeRing:    'ring-orange-200',
+    nodeOutline: 'border-orange-500',
+    nodeText:    'text-orange-600',
+    trackFill:   'bg-orange-500',
+    trackBg:     'bg-orange-100',
+    lineDone:    '#f97316',
+    lineTodo:    '#fed7aa',
+    desc:        'Advanced Tekla API patterns & techniques',
+    label:       'Intermediate',
   },
 }
 
@@ -84,9 +118,11 @@ function IconCpu({ className = 'w-5 h-5' }) {
 }
 
 function ZoneIcon({ category, className }) {
-  if (category === 'Dasar Pemograman') return <IconCode className={className} />
-  if (category === 'Foundational')     return <IconLayers className={className} />
-  return <IconCpu className={className} />
+  if (category === 'Programming Fundamental') return <IconCode className={className} />
+  if (category === 'Visual Studio')           return <IconCpu className={className} />
+  if (category === 'Windows Form')            return <IconLayers className={className} />
+  if (category === 'Tekla Open API')          return <IconCpu className={className} />
+  return <IconCode className={className} />
 }
 
 // ── Node connector (horizontal line between nodes) ────────────────────────────

@@ -1,27 +1,39 @@
 import React, { useState, useMemo } from 'react'
 import { addTrainingItem, deleteTrainingItem, saveItemQuiz, setUserProgress, getSettings, setDataPath, browseForFolder } from '../lib/storage'
 
-const CATEGORIES = ['Dasar Pemograman', 'Foundational', 'Tekla API']
+const CATEGORIES = ['Programming Fundamental', 'Visual Studio', 'Windows Form', 'Tekla Open API', 'Intermediate']
 const PIN = '1234'
 
 const CATEGORY_COLORS = {
-  'Dasar Pemograman': {
+  'Programming Fundamental': {
     badge: 'bg-indigo-100 text-indigo-700',
     border: 'border-indigo-200',
     dot: 'bg-indigo-400',
     light: 'bg-indigo-50',
   },
-  'Foundational': {
-    badge: 'bg-amber-100 text-amber-700',
-    border: 'border-amber-200',
-    dot: 'bg-amber-400',
-    light: 'bg-amber-50',
+  'Visual Studio': {
+    badge: 'bg-violet-100 text-violet-700',
+    border: 'border-violet-200',
+    dot: 'bg-violet-400',
+    light: 'bg-violet-50',
   },
-  'Tekla API': {
+  'Windows Form': {
+    badge: 'bg-sky-100 text-sky-700',
+    border: 'border-sky-200',
+    dot: 'bg-sky-400',
+    light: 'bg-sky-50',
+  },
+  'Tekla Open API': {
     badge: 'bg-emerald-100 text-emerald-700',
     border: 'border-emerald-200',
     dot: 'bg-emerald-400',
     light: 'bg-emerald-50',
+  },
+  'Intermediate': {
+    badge: 'bg-orange-100 text-orange-700',
+    border: 'border-orange-200',
+    dot: 'bg-orange-400',
+    light: 'bg-orange-50',
   },
 }
 
