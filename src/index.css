@@ -27,57 +27,27 @@
 }
 
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  .thin-scrollbar::-webkit-scrollbar {
-    width: 4px;
-  }
-  .thin-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .thin-scrollbar::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 2px;
-  }
+  .thin-scrollbar::-webkit-scrollbar { width: 4px; }
+  .thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .thin-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
 }
 
-/* Dotted map background pattern */
+/* Subtle engineering-grid background */
 .map-bg {
-  background-color: #e0f2fe;
-  background-image: radial-gradient(circle, #bae6fd 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-color: #f1f5f9;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-/* Path connector between zones */
-.path-dashes {
-  stroke-dasharray: 8 6;
-  animation: dash 1.5s linear infinite;
+/* Animated connector dashes */
+@keyframes dashFlow {
+  to { stroke-dashoffset: -20; }
 }
-
-@keyframes dash {
-  to {
-    stroke-dashoffset: -28;
-  }
-}
-
-/* Checkpoint node pulse */
-.node-pulse::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2px solid currentColor;
-  opacity: 0;
-  animation: nodePulse 2s ease-out infinite;
-}
-
-@keyframes nodePulse {
-  0% { opacity: 0.6; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.5); }
+.connector-animated {
+  animation: dashFlow 1.2s linear infinite;
 }

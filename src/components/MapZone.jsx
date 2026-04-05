@@ -1,144 +1,108 @@
 import React from 'react'
 import UserAvatar from './UserAvatar'
 
-const ZONE_STYLES = {
+// ── Zone config ───────────────────────────────────────────────────────────────
+
+const ZONE = {
   'Dasar Pemograman': {
-    headerBg: 'bg-indigo-500',
-    headerText: 'text-white',
-    lightBg: 'bg-indigo-50',
-    border: 'border-indigo-200',
-    nodeBg: 'bg-indigo-500',
-    nodeRing: 'ring-indigo-200',
-    connectorColor: '#a5b4fc',
-    badgeBg: 'bg-indigo-100',
-    badgeText: 'text-indigo-700',
-    progressBg: 'bg-indigo-400',
-    trackBg: 'bg-indigo-200',
-    desc: 'Start your coding journey',
-    label: 'Dasar Pemograman',
+    accent:      'border-indigo-500',
+    headerBg:    'bg-indigo-50',
+    headerText:  'text-indigo-700',
+    badgeBg:     'bg-indigo-100',
+    badgeText:   'text-indigo-700',
+    nodeFill:    'bg-indigo-600',
+    nodeRing:    'ring-indigo-200',
+    nodeOutline: 'border-indigo-500',
+    nodeText:    'text-indigo-600',
+    trackFill:   'bg-indigo-500',
+    trackBg:     'bg-indigo-100',
+    lineDone:    '#6366f1',
+    lineTodo:    '#c7d2fe',
+    desc:        'Programming fundamentals',
+    label:       'Dasar Pemograman',
   },
   'Foundational': {
-    headerBg: 'bg-amber-500',
-    headerText: 'text-white',
-    lightBg: 'bg-amber-50',
-    border: 'border-amber-200',
-    nodeBg: 'bg-amber-500',
-    nodeRing: 'ring-amber-200',
-    connectorColor: '#fcd34d',
-    badgeBg: 'bg-amber-100',
-    badgeText: 'text-amber-700',
-    progressBg: 'bg-amber-400',
-    trackBg: 'bg-amber-200',
-    desc: 'Build your logic skills',
-    label: 'Foundational',
+    accent:      'border-amber-500',
+    headerBg:    'bg-amber-50',
+    headerText:  'text-amber-700',
+    badgeBg:     'bg-amber-100',
+    badgeText:   'text-amber-700',
+    nodeFill:    'bg-amber-500',
+    nodeRing:    'ring-amber-200',
+    nodeOutline: 'border-amber-500',
+    nodeText:    'text-amber-600',
+    trackFill:   'bg-amber-500',
+    trackBg:     'bg-amber-100',
+    lineDone:    '#f59e0b',
+    lineTodo:    '#fde68a',
+    desc:        'Core logic & control flow',
+    label:       'Foundational',
   },
   'Tekla API': {
-    headerBg: 'bg-emerald-500',
-    headerText: 'text-white',
-    lightBg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    nodeBg: 'bg-emerald-500',
-    nodeRing: 'ring-emerald-200',
-    connectorColor: '#6ee7b7',
-    badgeBg: 'bg-emerald-100',
-    badgeText: 'text-emerald-700',
-    progressBg: 'bg-emerald-400',
-    trackBg: 'bg-emerald-200',
-    desc: 'Master the Tekla Open API',
-    label: 'Tekla API',
+    accent:      'border-emerald-500',
+    headerBg:    'bg-emerald-50',
+    headerText:  'text-emerald-700',
+    badgeBg:     'bg-emerald-100',
+    badgeText:   'text-emerald-700',
+    nodeFill:    'bg-emerald-600',
+    nodeRing:    'ring-emerald-200',
+    nodeOutline: 'border-emerald-500',
+    nodeText:    'text-emerald-600',
+    trackFill:   'bg-emerald-500',
+    trackBg:     'bg-emerald-100',
+    lineDone:    '#10b981',
+    lineTodo:    '#a7f3d0',
+    desc:        'Tekla Open API mastery',
+    label:       'Tekla API',
   },
 }
 
-// ── Zone SVG Illustrations ────────────────────────────────────────────────────
+// ── Zone icons (clean SVG, no emoji) ─────────────────────────────────────────
 
-function IllustrationDasar() {
+function IconCode({ className = 'w-5 h-5' }) {
   return (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-      {/* Monitor */}
-      <rect x="8" y="10" width="48" height="32" rx="4" fill="white" fillOpacity="0.25" stroke="white" strokeWidth="2"/>
-      {/* Screen */}
-      <rect x="12" y="14" width="40" height="24" rx="2" fill="white" fillOpacity="0.15"/>
-      {/* Code lines */}
-      <path d="M18 22 L22 26 L18 30" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M26 30 L36 30" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-      <path d="M26 25 L42 25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.7"/>
-      <path d="M26 22 L38 22" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.7"/>
-      {/* Stand */}
-      <path d="M28 42 L36 42 L34 50 L30 50 Z" fill="white" fillOpacity="0.25"/>
-      <rect x="24" y="50" width="16" height="3" rx="1.5" fill="white" fillOpacity="0.3"/>
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
     </svg>
   )
 }
 
-function IllustrationFoundational() {
+function IconLayers({ className = 'w-5 h-5' }) {
   return (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-      {/* Three building blocks stacked in pyramid */}
-      {/* Bottom row */}
-      <rect x="8" y="40" width="20" height="16" rx="3" fill="white" fillOpacity="0.3" stroke="white" strokeWidth="1.5"/>
-      <rect x="36" y="40" width="20" height="16" rx="3" fill="white" fillOpacity="0.3" stroke="white" strokeWidth="1.5"/>
-      {/* Middle */}
-      <rect x="18" y="22" width="28" height="16" rx="3" fill="white" fillOpacity="0.25" stroke="white" strokeWidth="1.5"/>
-      {/* Top */}
-      <rect x="22" y="8" width="20" height="12" rx="3" fill="white" fillOpacity="0.35" stroke="white" strokeWidth="2"/>
-      {/* Shine dots */}
-      <circle cx="14" cy="48" r="2" fill="white" fillOpacity="0.5"/>
-      <circle cx="50" cy="48" r="2" fill="white" fillOpacity="0.5"/>
-      <circle cx="32" cy="28" r="2" fill="white" fillOpacity="0.5"/>
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
     </svg>
   )
 }
 
-function IllustrationTekla() {
+function IconCpu({ className = 'w-5 h-5' }) {
   return (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-      {/* Large gear */}
-      <circle cx="32" cy="32" r="10" fill="white" fillOpacity="0.2" stroke="white" strokeWidth="2"/>
-      <circle cx="32" cy="32" r="5" fill="white" fillOpacity="0.3"/>
-      {/* Gear teeth */}
-      {[0,45,90,135,180,225,270,315].map((deg, i) => {
-        const rad = (deg * Math.PI) / 180
-        const x1 = 32 + 10 * Math.cos(rad)
-        const y1 = 32 + 10 * Math.sin(rad)
-        const x2 = 32 + 15 * Math.cos(rad)
-        const y2 = 32 + 15 * Math.sin(rad)
-        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="white" strokeWidth="4" strokeLinecap="round"/>
-      })}
-      {/* Connection dots */}
-      <circle cx="14" cy="18" r="4" fill="white" fillOpacity="0.35" stroke="white" strokeWidth="1.5"/>
-      <circle cx="50" cy="18" r="4" fill="white" fillOpacity="0.35" stroke="white" strokeWidth="1.5"/>
-      <circle cx="14" cy="46" r="4" fill="white" fillOpacity="0.35" stroke="white" strokeWidth="1.5"/>
-      <circle cx="50" cy="46" r="4" fill="white" fillOpacity="0.35" stroke="white" strokeWidth="1.5"/>
-      {/* Lines from center to dots */}
-      <line x1="22" y1="24" x2="17" y2="20" stroke="white" strokeWidth="1.5" strokeOpacity="0.5"/>
-      <line x1="42" y1="24" x2="47" y2="20" stroke="white" strokeWidth="1.5" strokeOpacity="0.5"/>
-      <line x1="22" y1="40" x2="17" y2="44" stroke="white" strokeWidth="1.5" strokeOpacity="0.5"/>
-      <line x1="42" y1="40" x2="47" y2="44" stroke="white" strokeWidth="1.5" strokeOpacity="0.5"/>
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" />
     </svg>
   )
 }
 
-function ZoneIllustration({ category }) {
-  if (category === 'Dasar Pemograman') return <IllustrationDasar />
-  if (category === 'Foundational') return <IllustrationFoundational />
-  if (category === 'Tekla API') return <IllustrationTekla />
-  return null
+function ZoneIcon({ category, className }) {
+  if (category === 'Dasar Pemograman') return <IconCode className={className} />
+  if (category === 'Foundational')     return <IconLayers className={className} />
+  return <IconCpu className={className} />
 }
 
-// ── Node connector (horizontal, within zone) ─────────────────────────────────
+// ── Node connector (horizontal line between nodes) ────────────────────────────
 
-function NodeConnector({ color, locked }) {
+function NodeConnector({ done, locked }) {
+  const color = locked ? '#e2e8f0' : done ? '#64748b' : '#cbd5e1'
   return (
-    <div className="flex items-center flex-shrink-0 w-8">
-      <svg width="32" height="8" viewBox="0 0 32 8" fill="none">
-        <line x1="0" y1="4" x2="32" y2="4"
-          stroke={locked ? '#cbd5e1' : color}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeDasharray="5 4"
+    <div className="flex items-center flex-shrink-0" style={{ width: 40, marginTop: -24 }}>
+      <svg width="40" height="2" viewBox="0 0 40 2">
+        <line x1="0" y1="1" x2="40" y2="1"
+          stroke={color}
+          strokeWidth="2"
+          strokeDasharray={done ? 'none' : '4 3'}
         >
-          {!locked && (
-            <animate attributeName="stroke-dashoffset" from="0" to="-18" dur="0.8s" repeatCount="indefinite"/>
+          {(!locked && !done) && (
+            <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="1s" repeatCount="indefinite"/>
           )}
         </line>
       </svg>
@@ -146,41 +110,38 @@ function NodeConnector({ color, locked }) {
   )
 }
 
-// ── Individual checkpoint node ────────────────────────────────────────────────
+// ── Checkpoint node ───────────────────────────────────────────────────────────
 
-function CheckpointNode({ item, style, done, usersOnNode, locked, onClick, index }) {
+function CheckpointNode({ item, zone, done, locked, usersOnNode, onClick, stepNumber }) {
   return (
-    <div className="flex flex-col items-center gap-2 flex-shrink-0">
-      {/* Node button */}
+    <div className="flex flex-col items-center gap-2 flex-shrink-0 w-24">
+      {/* Circle */}
       <button
         onClick={onClick}
         disabled={locked}
-        title={locked ? 'Complete the previous category to unlock' : item.title}
+        title={locked ? 'Complete the previous step first' : item.title}
         className={`
-          relative w-14 h-14 rounded-full flex items-center justify-center
-          transition-all duration-200
+          w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold
+          transition-all duration-150 border-2
           ${locked
-            ? 'bg-slate-200 ring-4 ring-slate-100 cursor-not-allowed'
+            ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
             : done
-              ? style.nodeBg + ' ring-4 ' + style.nodeRing + ' hover:scale-110 active:scale-95 cursor-pointer'
-              : 'bg-white ring-4 ' + style.nodeRing + ' border-2 ' + style.border + ' hover:scale-110 active:scale-95 cursor-pointer'
+              ? `${zone.nodeFill} border-transparent text-white hover:opacity-90 active:scale-95 cursor-pointer`
+              : `bg-white ${zone.nodeOutline} ${zone.nodeText} hover:bg-slate-50 active:scale-95 cursor-pointer ring-4 ${zone.nodeRing}`
           }
         `}
       >
         {locked ? (
-          <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
           </svg>
         ) : done ? (
-          <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
         ) : (
-          <>
-            <span className="text-xl">⭐</span>
-            <span className="absolute inset-0 rounded-full animate-ping opacity-30 bg-current" style={{ color: style.connectorColor }} />
-          </>
+          <span>{stepNumber}</span>
         )}
       </button>
 
@@ -188,16 +149,16 @@ function CheckpointNode({ item, style, done, usersOnNode, locked, onClick, index
       <button
         onClick={locked ? undefined : onClick}
         disabled={locked}
-        className={`max-w-[88px] text-center cursor-pointer group ${locked ? 'cursor-not-allowed' : ''}`}
+        className={`text-center w-full ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
       >
-        <p className={`text-[11px] font-semibold leading-tight line-clamp-2 group-hover:underline ${locked ? 'text-slate-400' : 'text-slate-700'}`}>
+        <p className={`text-[11px] leading-snug line-clamp-2 font-medium ${locked ? 'text-slate-400' : 'text-slate-600 hover:text-slate-800'}`}>
           {item.title}
         </p>
       </button>
 
-      {/* User avatars */}
+      {/* Avatars (latest position only) */}
       {!locked && usersOnNode.length > 0 && (
-        <div className="flex -space-x-1">
+        <div className="flex -space-x-1 mt-0.5">
           {usersOnNode.slice(0, 3).map((u) => (
             <UserAvatar key={u.id} user={u} size="xs" ring tooltip />
           ))}
@@ -222,90 +183,91 @@ export default function MapZone({
   locked = false,
   latestItemsMap = {},
 }) {
-  const style = ZONE_STYLES[category] || ZONE_STYLES['Foundational']
+  const zone = ZONE[category] || ZONE['Foundational']
 
   const completedCount = items.filter((item) =>
     progress.some((p) => p.itemId === item.id && p.userId === currentUser?.id)
   ).length
-
   const pct = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0
+  const allDone = pct === 100 && items.length > 0
 
   return (
-    <div className={`w-full rounded-3xl overflow-hidden border-2 transition-opacity duration-300 ${locked ? 'border-slate-200 opacity-60' : style.border}`}>
+    <div className={`w-full rounded-xl border-l-4 border border-slate-200 bg-white overflow-hidden ${locked ? 'border-l-slate-300 opacity-60' : zone.accent}`}>
 
-      {/* ── Zone header ───────────────────────────────────────────────────── */}
-      <div className={`flex items-center gap-5 px-6 py-5 ${locked ? 'bg-slate-200' : style.headerBg}`}>
-
-        {/* Illustration */}
-        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 ${locked ? 'bg-slate-300' : 'bg-white bg-opacity-20'}`}>
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div className={`flex items-center gap-4 px-5 py-4 ${locked ? 'bg-slate-50' : zone.headerBg}`}>
+        {/* Icon */}
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border ${
+          locked ? 'bg-slate-200 border-slate-300 text-slate-400' : `bg-white border-slate-200 ${zone.headerText}`
+        }`}>
           {locked
-            ? <svg className="w-7 h-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            : <ZoneIllustration category={category} />
+            ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+            : <ZoneIcon category={category} className="w-4 h-4" />
           }
         </div>
 
-        {/* Title & desc */}
+        {/* Title + desc */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className={`font-bold text-lg leading-none ${locked ? 'text-slate-500' : 'text-white'}`}>
-              {style.label}
+          <div className="flex items-center gap-2">
+            <h3 className={`font-semibold text-sm ${locked ? 'text-slate-400' : 'text-slate-800'}`}>
+              {zone.label}
             </h3>
-            {pct === 100 && !locked && <span className="text-lg">🏆</span>}
-          </div>
-          <p className={`text-sm ${locked ? 'text-slate-400' : 'text-white text-opacity-80'}`}>
-            {locked ? 'Complete the previous level to unlock' : style.desc}
-          </p>
-          {/* Progress bar */}
-          {!locked && (
-            <div className="mt-3 flex items-center gap-2">
-              <div className={`flex-1 h-2 rounded-full ${style.trackBg}`}>
-                <div
-                  className="h-2 rounded-full bg-white transition-all duration-700"
-                  style={{ width: `${pct}%`, opacity: 0.9 }}
-                />
-              </div>
-              <span className="text-white text-xs font-bold opacity-90 w-10 text-right">
-                {completedCount}/{items.length}
+            {allDone && (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${zone.badgeBg} ${zone.badgeText}`}>
+                COMPLETE
               </span>
-            </div>
-          )}
+            )}
+          </div>
+          <p className={`text-xs mt-0.5 ${locked ? 'text-slate-400' : 'text-slate-500'}`}>
+            {locked ? 'Complete the previous level to unlock' : zone.desc}
+          </p>
         </div>
+
+        {/* Progress */}
+        {!locked && (
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className={`w-20 h-1.5 rounded-full ${zone.trackBg}`}>
+              <div
+                className={`h-1.5 rounded-full transition-all duration-500 ${zone.trackFill}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <span className="text-xs font-semibold text-slate-500 w-8 text-right">
+              {completedCount}/{items.length}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* ── Nodes row ─────────────────────────────────────────────────────── */}
-      <div className={`px-6 py-6 ${locked ? 'bg-slate-50' : 'bg-white'}`}>
+      {/* ── Nodes row ──────────────────────────────────────────────────────── */}
+      <div className="px-6 py-5 bg-white">
         {items.length === 0 ? (
-          <p className="text-center text-sm text-slate-400 py-2 italic">No training items yet.</p>
+          <p className="text-xs text-slate-400 italic text-center py-2">No training items yet.</p>
         ) : (
-          <div className="flex items-start justify-center gap-0 overflow-x-auto no-scrollbar py-2">
+          <div className="flex items-start justify-start gap-0 overflow-x-auto no-scrollbar">
             {items.map((item, idx) => {
-              const done = progress.some((p) => p.itemId === item.id && p.userId === currentUser?.id)
-
-              // Sequential lock: item is locked if the category is locked OR
-              // the previous item in this zone hasn't been completed yet.
+              const done = progress.some(
+                (p) => p.itemId === item.id && p.userId === currentUser?.id
+              )
               const prevDone = idx === 0 || progress.some(
                 (p) => p.itemId === items[idx - 1].id && p.userId === currentUser?.id
               )
               const itemLocked = locked || (!done && !prevDone)
-
-              // Dashboard: only show a user's avatar if this is their latest completed item
-              const usersHere = users.filter(
-                (u) => latestItemsMap[u.id]?.itemId === item.id
-              )
-
+              const usersHere = users.filter((u) => latestItemsMap[u.id]?.itemId === item.id)
               const isLast = idx === items.length - 1
+
               return (
                 <React.Fragment key={item.id}>
                   <CheckpointNode
                     item={item}
-                    style={style}
+                    zone={zone}
                     done={done}
-                    usersOnNode={usersHere}
                     locked={itemLocked}
+                    usersOnNode={usersHere}
                     onClick={itemLocked ? undefined : () => onItemClick(item)}
-                    index={idx}
+                    stepNumber={idx + 1}
                   />
-                  {!isLast && <NodeConnector color={style.connectorColor} locked={itemLocked} />}
+                  {!isLast && <NodeConnector done={done} locked={itemLocked} />}
                 </React.Fragment>
               )
             })}

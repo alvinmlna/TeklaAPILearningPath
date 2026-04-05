@@ -143,20 +143,25 @@ export default function Register({ onRegistered }) {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-indigo-50 flex items-center justify-center p-6 overflow-auto">
+    <div className="min-h-screen map-bg flex items-center justify-center p-6 overflow-auto">
       {/* Decorative blobs */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-200 rounded-full -translate-x-1/2 -translate-y-1/2 opacity-40 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-amber-200 rounded-full translate-x-1/3 translate-y-1/3 opacity-30 pointer-events-none" />
-
-      <div className="relative bg-white rounded-3xl p-10 w-full max-w-md">
+      <div className="relative bg-white rounded-2xl border border-slate-200 p-10 w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">🎓</span>
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-slate-800 leading-none">Training Tracker</h1>
+              <p className="text-xs text-slate-400 mt-0.5">Tekla API Learning Path</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Welcome!</h1>
+          <h2 className="text-xl font-bold text-slate-800">Create your profile</h2>
           <p className="text-slate-500 mt-1 text-sm">
-            Register to start your training journey.
+            Your profile will appear on the shared training map.
           </p>
         </div>
 
@@ -258,7 +263,7 @@ export default function Register({ onRegistered }) {
                   <img src={photo} alt="Your photo" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm font-semibold text-slate-700">Looking good! 🎉</p>
+                  <p className="text-sm font-semibold text-slate-700">Photo ready</p>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -340,7 +345,7 @@ export default function Register({ onRegistered }) {
                 : 'bg-indigo-500 hover:bg-indigo-600 text-white disabled:opacity-50'
               }`}
           >
-            {loading ? 'Registering…' : 'Start Training →'}
+            {loading ? 'Creating profile…' : 'Create Profile'}
           </button>
 
           {!photo && (

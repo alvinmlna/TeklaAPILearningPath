@@ -7,34 +7,34 @@ const CATEGORIES = ['Dasar Pemograman', 'Foundational', 'Tekla API']
 
 const CATEGORY_COLORS = {
   'Dasar Pemograman': {
-    bg: 'bg-indigo-500',
     light: 'bg-indigo-50',
     border: 'border-indigo-200',
-    text: 'text-indigo-600',
+    text: 'text-indigo-700',
     badge: 'bg-indigo-100 text-indigo-700',
-    activeBg: 'bg-indigo-500',
+    activeBg: 'bg-indigo-600',
     activeText: 'text-white',
-    dot: 'bg-indigo-400',
+    dot: 'bg-indigo-500',
+    accent: 'border-l-indigo-500',
   },
   'Foundational': {
-    bg: 'bg-amber-500',
     light: 'bg-amber-50',
     border: 'border-amber-200',
-    text: 'text-amber-600',
+    text: 'text-amber-700',
     badge: 'bg-amber-100 text-amber-700',
     activeBg: 'bg-amber-500',
     activeText: 'text-white',
-    dot: 'bg-amber-400',
+    dot: 'bg-amber-500',
+    accent: 'border-l-amber-500',
   },
   'Tekla API': {
-    bg: 'bg-emerald-500',
     light: 'bg-emerald-50',
     border: 'border-emerald-200',
-    text: 'text-emerald-600',
+    text: 'text-emerald-700',
     badge: 'bg-emerald-100 text-emerald-700',
-    activeBg: 'bg-emerald-500',
+    activeBg: 'bg-emerald-600',
     activeText: 'text-white',
-    dot: 'bg-emerald-400',
+    dot: 'bg-emerald-500',
+    accent: 'border-l-emerald-500',
   },
 }
 
@@ -137,27 +137,33 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
   return (
     <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
       {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 flex items-center gap-3 px-5 py-3 bg-white border-b-2 border-slate-100">
+      <header className="flex-shrink-0 flex items-center gap-3 px-5 py-3 bg-white border-b border-slate-200">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 font-medium text-sm px-3 py-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+          className="flex items-center gap-1.5 text-slate-500 hover:text-slate-700 font-medium text-xs px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
-          Map
+          Learning Path
         </button>
 
-        <div className="h-5 w-px bg-slate-200" />
+        <div className="h-4 w-px bg-slate-200" />
 
         <div className="flex items-center gap-2">
-          <span className="text-lg">📚</span>
-          <h1 className="font-bold text-slate-800 text-sm">Training Library</h1>
+          <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+          </svg>
+          <h1 className="font-semibold text-slate-800 text-sm">Training Library</h1>
         </div>
+
+        <span className="text-[10px] text-slate-400 uppercase tracking-wide ml-1">
+          — Press <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-200 rounded text-[9px] font-mono">Esc</kbd> to go back
+        </span>
 
         <div className="ml-auto flex items-center gap-3">
           <span className="text-xs text-slate-500">
-            <span className="font-bold text-slate-700">{totalDone}</span>/{trainingItems.length} completed
+            <span className="font-semibold text-slate-700">{totalDone}</span>/{trainingItems.length} completed
           </span>
           <UserAvatar user={currentUser} size="sm" ring />
         </div>
@@ -166,8 +172,11 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
       {/* ── Body ─────────────────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ── Sidebar ────────────────────────────────────────────────────────── */}
-        <aside className="w-60 flex-shrink-0 bg-white border-r-2 border-slate-100 overflow-y-auto thin-scrollbar flex flex-col">
-          <div className="p-3 space-y-1">
+        <aside className="w-60 flex-shrink-0 bg-white border-r border-slate-200 overflow-y-auto thin-scrollbar flex flex-col">
+          <div className="px-3 py-3 border-b border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Curriculum</p>
+          </div>
+          <div className="p-2 space-y-0.5">
             {CATEGORIES.map((cat, catIdx) => {
               const locked = isCategoryLocked(catIdx)
               const catItems = itemsByCategory[cat] || []
@@ -179,20 +188,19 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
               return (
                 <div key={cat} className={locked ? 'opacity-50' : ''}>
                   {/* Category header */}
-                  <div className={`flex items-center justify-between px-3 py-2 rounded-xl ${locked ? 'bg-slate-100' : colors.light}`}>
+                  <div className={`flex items-center justify-between px-2.5 py-2 rounded-lg border-l-2 mb-0.5 ${locked ? 'bg-slate-50 border-l-slate-300' : colors.light + ' ' + colors.accent}`}>
                     <div className="flex items-center gap-1.5">
                       {locked && (
-                        <svg className="w-3 h-3 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        <svg className="w-3 h-3 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
                         </svg>
                       )}
-                      <span className={`text-xs font-bold uppercase tracking-wide ${locked ? 'text-slate-400' : colors.text}`}>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${locked ? 'text-slate-400' : colors.text}`}>
                         {cat}
                       </span>
                     </div>
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${locked ? 'bg-slate-200 text-slate-400' : colors.badge}`}>
-                      {locked ? '🔒' : `${catDone}/${catItems.length}`}
+                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${locked ? 'bg-slate-200 text-slate-400' : colors.badge}`}>
+                      {locked ? 'Locked' : `${catDone}/${catItems.length}`}
                     </span>
                   </div>
 
