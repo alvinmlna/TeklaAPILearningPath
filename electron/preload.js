@@ -25,4 +25,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
    * @returns {Promise<string>}
    */
   getDataPath: () => ipcRenderer.invoke('get-data-path'),
+
+  /**
+   * Compile and run user-supplied C# code against test cases.
+   * @param {{ code: string, testCases: Array<{ input: string, expected: string }> }} opts
+   * @returns {Promise<{ success: boolean, buildError: string|null, results: Array<{ input, expected, actual, stderr, passed }> }>}
+   */
+  runCSharp: (opts) => ipcRenderer.invoke('run-csharp', opts),
 })

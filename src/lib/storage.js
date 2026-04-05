@@ -94,3 +94,15 @@ export function getLatestItemPerUser(progress) {
   }
   return latest // { [userId]: { userId, itemId, completedAt } }
 }
+
+// ─── C# Code Challenge ────────────────────────────────────────────────────────
+
+/**
+ * Compile and run user C# code against the challenge test cases.
+ * @param {string} code - Full C# source code
+ * @param {Array<{ input: string, expected: string }>} testCases
+ * @returns {Promise<{ success: boolean, buildError: string|null, results: Array }>}
+ */
+export async function runCSharp(code, testCases) {
+  return api().runCSharp({ code, testCases })
+}

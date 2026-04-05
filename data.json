@@ -28,7 +28,19 @@
       "category": "Foundational",
       "title": "If-Else Statements",
       "description": "Conditional logic with if-else — decision-making in code.",
-      "youtubeUrl": "https://www.youtube.com/watch?v=HQS_y0GY8-Y"
+      "youtubeUrl": "https://www.youtube.com/watch?v=HQS_y0GY8-Y",
+      "codeChallenge": {
+        "title": "Number Sign Checker",
+        "prompt": "Write a C# program that reads one integer from standard input and prints exactly one of the following words:\n- \"Positive\" if the number is greater than zero\n- \"Negative\" if the number is less than zero\n- \"Zero\" if the number equals zero\n\nDo not print anything else — no extra spaces or newlines beyond what Console.WriteLine adds.",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int number = int.Parse(Console.ReadLine());\n\n        // Write your if-else logic here\n\n    }\n}",
+        "testCases": [
+          { "input": "5",  "expected": "Positive" },
+          { "input": "-3", "expected": "Negative" },
+          { "input": "0",  "expected": "Zero"     },
+          { "input": "100","expected": "Positive" },
+          { "input": "-1", "expected": "Negative" }
+        ]
+      }
     },
     {
       "id": "found-2",

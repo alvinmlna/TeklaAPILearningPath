@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import VideoPlayer from '../components/VideoPlayer'
 import UserAvatar from '../components/UserAvatar'
+import CodeChallenge from '../components/CodeChallenge'
 import { markComplete, isCompleted, completedAt, getUsersOnNode } from '../lib/storage'
 
 const CATEGORIES = ['Dasar Pemograman', 'Foundational', 'Tekla API']
@@ -52,6 +53,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
   const [selectedItem, setSelectedItem] = useState(initialItem || trainingItems[0] || null)
   const [marking, setMarking] = useState(false)
   const [justMarked, setJustMarked] = useState(false)
+  const [activeTab, setActiveTab] = useState('video') // 'video' | 'code'
 
   // Keep progress fresh when parent data changes
   useEffect(() => {
@@ -75,6 +77,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
   const handleSelect = (item) => {
     setSelectedItem(item)
     setJustMarked(false)
+    setActiveTab('video')
   }
 
   const handleMarkComplete = async () => {
@@ -260,23 +263,27 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
         </aside>
 
         {/* ── Content area ───────────────────────────────────────────────────── */}
-        <main className="flex-1 overflow-y-auto thin-scrollbar p-6">
+        <main className="flex-1 flex flex-col overflow-hidden">
           {!selectedItem ? (
             <div className="flex items-center justify-center h-full text-center">
               <div>
-                <span className="text-6xl">📖</span>
-                <p className="mt-4 text-slate-500 font-medium">
+                <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                </div>
+                <p className="text-slate-500 font-medium text-sm">
                   Select a training item from the sidebar to begin.
                 </p>
               </div>
             </div>
           ) : (() => {
-            // Determine if the selected item is sequentially locked
             const selCatIdx = CATEGORIES.indexOf(selectedItem.category)
             const selCatItems = itemsByCategory[selectedItem.category] || []
             const selItemIdx = selCatItems.findIndex((i) => i.id === selectedItem.id)
             const selectedItemLocked = isItemLocked(selCatIdx, selItemIdx, selCatItems)
             const prevItem = selItemIdx > 0 ? selCatItems[selItemIdx - 1] : null
+            const hasChallenge = !!selectedItem.codeChallenge
 
             if (selectedItemLocked) return (
               <div className="flex items-center justify-center h-full">
@@ -286,105 +293,153 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
                   </div>
-                  <h3 className="font-bold text-slate-700 text-lg mb-2">Video Locked</h3>
+                  <h3 className="font-bold text-slate-700 text-lg mb-2">Content Locked</h3>
                   <p className="text-slate-400 text-sm leading-relaxed">
-                    Complete <span className="font-semibold text-slate-600">"{prevItem?.title}"</span> first to unlock this video.
+                    Complete <span className="font-semibold text-slate-600">"{prevItem?.title}"</span> first to unlock this item.
                   </p>
                 </div>
               </div>
             )
 
             return (
-            <div className="max-w-3xl mx-auto space-y-5">
-              {/* Item header */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${CATEGORY_COLORS[selectedItem.category]?.badge || 'bg-slate-100 text-slate-600'}`}>
-                    {selectedItem.category}
-                  </span>
-                  {done && (
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              <div className="flex flex-col h-full overflow-hidden">
+                {/* ── Item header + tabs ──────────────────────────────────────── */}
+                <div className="flex-shrink-0 bg-white border-b border-slate-200 px-6 pt-5 pb-0">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${CATEGORY_COLORS[selectedItem.category]?.badge || 'bg-slate-100 text-slate-600'}`}>
+                          {selectedItem.category}
+                        </span>
+                        {done && (
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Completed {completionDate ? `· ${formatDate(completionDate)}` : ''}
+                          </span>
+                        )}
+                      </div>
+                      <h2 className="text-xl font-bold text-slate-800">{selectedItem.title}</h2>
+                      {selectedItem.description && (
+                        <p className="mt-1 text-slate-500 text-xs leading-relaxed">{selectedItem.description}</p>
+                      )}
+                    </div>
+
+                    {/* Mark complete button (only on video tab) */}
+                    {activeTab === 'video' && !done && (
+                      <button
+                        onClick={handleMarkComplete}
+                        disabled={marking}
+                        className="flex-shrink-0 flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg px-4 py-2 text-xs transition-colors disabled:opacity-50"
+                      >
+                        {marking ? (
+                          <>
+                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                            Saving…
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Mark Complete
+                          </>
+                        )}
+                      </button>
+                    )}
+                    {activeTab === 'video' && done && (
+                      <div className="flex-shrink-0 flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                        <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-xs font-semibold text-emerald-700">Done</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tabs */}
+                  <div className="flex gap-0 border-b-0">
+                    <button
+                      onClick={() => setActiveTab('video')}
+                      className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                        activeTab === 'video'
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
                       </svg>
-                      Completed {completionDate ? `· ${formatDate(completionDate)}` : ''}
-                    </span>
+                      Video
+                    </button>
+
+                    {hasChallenge && (
+                      <button
+                        onClick={() => setActiveTab('code')}
+                        className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                          activeTab === 'code'
+                            ? 'border-emerald-500 text-emerald-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                        </svg>
+                        Code Challenge
+                        {!done && <span className="ml-1 w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── Tab content ─────────────────────────────────────────────── */}
+                <div className="flex-1 overflow-hidden">
+                  {activeTab === 'video' && (
+                    <div className="h-full overflow-y-auto thin-scrollbar p-6">
+                      <div className="max-w-3xl mx-auto space-y-5">
+                        <VideoPlayer url={selectedItem.youtubeUrl} className="w-full aspect-video" />
+
+                        {justMarked && !marking && (
+                          <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Progress saved!
+                          </div>
+                        )}
+
+                        {/* Who else completed this */}
+                        {usersOnNode.length > 0 && (
+                          <div className="bg-white border border-slate-200 rounded-xl px-5 py-4">
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">
+                              Also completed by
+                            </p>
+                            <div className="flex flex-wrap gap-3">
+                              {usersOnNode.map((u) => (
+                                <div key={u.id} className="flex items-center gap-2">
+                                  <UserAvatar user={u} size="sm" />
+                                  <span className="text-sm text-slate-700 font-medium">{u.name}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'code' && hasChallenge && (
+                    <CodeChallenge
+                      challenge={selectedItem.codeChallenge}
+                      onAllPassed={handleMarkComplete}
+                    />
                   )}
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800">{selectedItem.title}</h2>
-                {selectedItem.description && (
-                  <p className="mt-2 text-slate-500 text-sm leading-relaxed">
-                    {selectedItem.description}
-                  </p>
-                )}
               </div>
-
-              {/* Video */}
-              <VideoPlayer
-                url={selectedItem.youtubeUrl}
-                className="w-full aspect-video"
-              />
-
-              {/* Action row */}
-              <div className="flex items-center gap-4">
-                {done ? (
-                  <div className="flex items-center gap-2 bg-emerald-50 border-2 border-emerald-200 rounded-2xl px-5 py-3">
-                    <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="font-semibold text-emerald-700 text-sm">
-                      You completed this!
-                    </span>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleMarkComplete}
-                    disabled={marking}
-                    className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-2xl px-6 py-3 text-sm transition-colors disabled:opacity-50"
-                  >
-                    {marking ? (
-                      <>
-                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                        </svg>
-                        Saving…
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Mark as Complete
-                      </>
-                    )}
-                  </button>
-                )}
-
-                {justMarked && !marking && (
-                  <span className="text-emerald-600 text-sm font-medium animate-pulse">
-                    🎉 Great job!
-                  </span>
-                )}
-              </div>
-
-              {/* Who else completed this */}
-              {usersOnNode.length > 0 && (
-                <div className="bg-white border-2 border-slate-100 rounded-2xl px-5 py-4">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">
-                    Also completed by
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {usersOnNode.map((u) => (
-                      <div key={u.id} className="flex items-center gap-2">
-                        <UserAvatar user={u} size="sm" />
-                        <span className="text-sm text-slate-700 font-medium">{u.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
             )
           })()}
         </main>
