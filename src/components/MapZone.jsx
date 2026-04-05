@@ -244,7 +244,7 @@ export default function MapZone({
         {items.length === 0 ? (
           <p className="text-xs text-slate-400 italic text-center py-2">No training items yet.</p>
         ) : (
-          <div className="flex items-start justify-start gap-0 overflow-x-auto no-scrollbar">
+          <div className="flex items-start justify-start gap-0 overflow-x-auto no-scrollbar px-1 py-2">
             {items.map((item, idx) => {
               const done = progress.some(
                 (p) => p.itemId === item.id && p.userId === currentUser?.id
