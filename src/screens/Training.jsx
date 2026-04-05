@@ -102,7 +102,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
     [trainingItems]
   )
 
-  // Mirror the same lock logic as Dashboard
+  // Category-level lock: all items in previous category must be done
   const isCategoryLocked = (idx) => {
     if (idx === 0) return false
     const prevCat = CATEGORIES[idx - 1]
@@ -111,6 +111,14 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
     return !prevItems.every((item) =>
       progress.some((p) => p.itemId === item.id && p.userId === currentUser?.id)
     )
+  }
+
+  // Item-level lock: sequential within category — previous item must be done
+  const isItemLocked = (catIdx, itemIdx, catItems) => {
+    if (isCategoryLocked(catIdx)) return true
+    if (itemIdx === 0) return false
+    const prevItem = catItems[itemIdx - 1]
+    return !progress.some((p) => p.itemId === prevItem.id && p.userId === currentUser?.id)
   }
 
   const totalDone = trainingItems.filter((i) =>
@@ -181,17 +189,18 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
 
                   {/* Items */}
                   <div className="mt-0.5 space-y-0.5 mb-2">
-                    {catItems.map((item) => {
+                    {catItems.map((item, itemIdx) => {
+                      const itemLocked = isItemLocked(catIdx, itemIdx, catItems)
                       const itemDone = isCompleted(progress, currentUser?.id, item.id)
                       const isActive = selectedItem?.id === item.id
                       return (
                         <button
                           key={item.id}
-                          onClick={locked ? undefined : () => handleSelect(item)}
-                          disabled={locked}
+                          onClick={itemLocked ? undefined : () => handleSelect(item)}
+                          disabled={itemLocked}
                           className={`
                             w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors
-                            ${locked
+                            ${itemLocked
                               ? 'cursor-not-allowed text-slate-400'
                               : isActive
                                 ? colors.activeBg + ' ' + colors.activeText
@@ -201,14 +210,16 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                           {/* Status dot */}
                           <span className={`
                             flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center
-                            ${locked
+                            ${itemLocked
                               ? 'bg-slate-200'
                               : itemDone
                                 ? (isActive ? 'bg-white bg-opacity-30' : colors.dot)
                                 : (isActive ? 'bg-white bg-opacity-20' : 'bg-slate-200')}
                           `}>
-                            {locked ? (
-                              <span className="text-[8px] text-slate-400">🔒</span>
+                            {itemLocked ? (
+                              <svg className="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                              </svg>
                             ) : itemDone ? (
                               <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -242,7 +253,31 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                 </p>
               </div>
             </div>
-          ) : (
+          ) : (() => {
+            // Determine if the selected item is sequentially locked
+            const selCatIdx = CATEGORIES.indexOf(selectedItem.category)
+            const selCatItems = itemsByCategory[selectedItem.category] || []
+            const selItemIdx = selCatItems.findIndex((i) => i.id === selectedItem.id)
+            const selectedItemLocked = isItemLocked(selCatIdx, selItemIdx, selCatItems)
+            const prevItem = selItemIdx > 0 ? selCatItems[selItemIdx - 1] : null
+
+            if (selectedItemLocked) return (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center max-w-sm">
+                  <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-5">
+                    <svg className="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-slate-700 text-lg mb-2">Video Locked</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    Complete <span className="font-semibold text-slate-600">"{prevItem?.title}"</span> first to unlock this video.
+                  </p>
+                </div>
+              </div>
+            )
+
+            return (
             <div className="max-w-3xl mx-auto space-y-5">
               {/* Item header */}
               <div>
@@ -333,7 +368,8 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                 </div>
               )}
             </div>
-          )}
+            )
+          })()}
         </main>
       </div>
     </div>

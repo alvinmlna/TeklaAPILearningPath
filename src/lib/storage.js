@@ -79,3 +79,18 @@ export function getUsersOnNode(progress, users, itemId) {
   const userIds = progress.filter((p) => p.itemId === itemId).map((p) => p.userId)
   return users.filter((u) => userIds.includes(u.id))
 }
+
+/**
+ * For the dashboard map: returns a map of { userId → itemId } where each value
+ * is the most recently completed item for that user.
+ * Used to show only the user's current "position" on the map (latest node).
+ */
+export function getLatestItemPerUser(progress) {
+  const latest = {}
+  for (const p of progress) {
+    if (!latest[p.userId] || new Date(p.completedAt) > new Date(latest[p.userId].completedAt)) {
+      latest[p.userId] = p
+    }
+  }
+  return latest // { [userId]: { userId, itemId, completedAt } }
+}
