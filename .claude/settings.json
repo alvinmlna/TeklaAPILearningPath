@@ -5,6 +5,9 @@
       "Bash(set NODE_OPTIONS=--openssl-legacy-provider)",
       "Read(//c/Users/Alvin/AppData/Roaming/training-tracker/**)",
       "Bash(node -e ':*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Alvin\\AppData\\Local\\electron-builder\\Cache\\winCodeSign"
     ]
   }
 }

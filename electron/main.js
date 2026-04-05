@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
@@ -393,7 +393,7 @@ function createWindow() {
   if (process.env.NODE_ENV === 'development' || process.env.VITE_DEV_SERVER_URL) {
     const devUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173'
     mainWindow.loadURL(devUrl)
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()  // uncomment to re-enable during dev
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'))
   }
@@ -401,6 +401,7 @@ function createWindow() {
 
 // ─── App lifecycle ────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null)
   createWindow()
 
   app.on('activate', () => {
