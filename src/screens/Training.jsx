@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import VideoPlayer from '../components/VideoPlayer'
 import UserAvatar from '../components/UserAvatar'
 import CodeChallenge from '../components/CodeChallenge'
+import Quiz from '../components/Quiz'
 import { markComplete, isCompleted, completedAt, getUsersOnNode } from '../lib/storage'
 
 const CATEGORIES = ['Dasar Pemograman', 'Foundational', 'Tekla API']
@@ -80,11 +81,11 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
     setActiveTab('video')
   }
 
-  const handleMarkComplete = async () => {
+  const handleMarkComplete = async (submittedCode = null) => {
     if (!currentUser || !selectedItem) return
     setMarking(true)
     try {
-      const result = await markComplete(currentUser.id, selectedItem.id)
+      const result = await markComplete(currentUser.id, selectedItem.id, submittedCode)
       if (result.success) {
         setJustMarked(true)
         const fresh = await onRefresh()
@@ -101,6 +102,10 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
 
   const completionDate = selectedItem
     ? completedAt(progress, currentUser?.id, selectedItem.id)
+    : null
+
+  const submittedCode = selectedItem
+    ? (progress.find((p) => p.itemId === selectedItem.id && p.userId === currentUser?.id)?.submittedCode ?? null)
     : null
 
   const usersOnNode = selectedItem
@@ -284,6 +289,8 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
             const selectedItemLocked = isItemLocked(selCatIdx, selItemIdx, selCatItems)
             const prevItem = selItemIdx > 0 ? selCatItems[selItemIdx - 1] : null
             const hasChallenge = !!selectedItem.codeChallenge
+            const hasQuiz = !!selectedItem.quiz
+            const needsGate = hasChallenge || hasQuiz
 
             if (selectedItemLocked) return (
               <div className="flex items-center justify-center h-full">
@@ -326,10 +333,10 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                       )}
                     </div>
 
-                    {/* Mark complete button (only on video tab) */}
-                    {activeTab === 'video' && !done && (
+                    {/* Mark complete button — hidden when item has a challenge or quiz (must pass those instead) */}
+                    {!needsGate && !done && (
                       <button
-                        onClick={handleMarkComplete}
+                        onClick={() => handleMarkComplete()}
                         disabled={marking}
                         className="flex-shrink-0 flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg px-4 py-2 text-xs transition-colors disabled:opacity-50"
                       >
@@ -351,7 +358,17 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                         )}
                       </button>
                     )}
-                    {activeTab === 'video' && done && (
+                    {needsGate && !done && (
+                      <div className="flex-shrink-0 flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        <svg className="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <span className="text-xs font-semibold text-amber-700">
+                          {hasQuiz && hasChallenge ? 'Pass the quiz and code challenge to complete' : hasQuiz ? 'Pass the quiz to complete' : 'Pass the code challenge to complete'}
+                        </span>
+                      </div>
+                    )}
+                    {done && (
                       <div className="flex-shrink-0 flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
                         <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -376,6 +393,23 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                       </svg>
                       Video
                     </button>
+
+                    {hasQuiz && (
+                      <button
+                        onClick={() => setActiveTab('quiz')}
+                        className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                          activeTab === 'quiz'
+                            ? 'border-indigo-500 text-indigo-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                        </svg>
+                        Quiz
+                        {!done && <span className="ml-1 w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />}
+                      </button>
+                    )}
 
                     {hasChallenge && (
                       <button
@@ -432,9 +466,19 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                     </div>
                   )}
 
+                  {activeTab === 'quiz' && hasQuiz && (
+                    <Quiz
+                      quiz={selectedItem.quiz}
+                      done={done}
+                      onAllPassed={() => handleMarkComplete()}
+                    />
+                  )}
+
                   {activeTab === 'code' && hasChallenge && (
                     <CodeChallenge
                       challenge={selectedItem.codeChallenge}
+                      done={done}
+                      submittedCode={submittedCode}
                       onAllPassed={handleMarkComplete}
                     />
                   )}

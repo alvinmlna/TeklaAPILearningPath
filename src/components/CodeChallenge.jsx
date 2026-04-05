@@ -93,7 +93,7 @@ function Row({ label, value, color = 'text-slate-700' }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function CodeChallenge({ challenge, onAllPassed }) {
+export default function CodeChallenge({ challenge, done = false, submittedCode = null, onAllPassed }) {
   const [code, setCode] = useState(challenge.starterCode || '')
   const [running, setRunning] = useState(false)
   const [runResult, setRunResult] = useState(null) // { success, buildError, results }
@@ -103,6 +103,55 @@ export default function CodeChallenge({ challenge, onAllPassed }) {
   const totalCount  = challenge.testCases?.length ?? 0
   const allPassed   = runResult?.success && passedCount === totalCount && totalCount > 0
 
+  // Read-only mode: show submitted code when already completed
+  if (done) {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Prompt */}
+        <div className="bg-slate-50 border-b border-slate-200 px-5 py-4">
+          <h3 className="text-sm font-semibold text-slate-800 mb-1">{challenge.title}</h3>
+          <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">{challenge.prompt}</p>
+        </div>
+
+        {/* Completed banner */}
+        <div className="flex items-center gap-2 px-5 py-2.5 bg-emerald-50 border-b border-emerald-200">
+          <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
+            <IconCheck className="w-3 h-3" />
+          </span>
+          <span className="text-xs font-semibold text-emerald-700">Challenge completed — your submitted solution (read-only)</span>
+        </div>
+
+        {/* Read-only editor */}
+        <div className="flex-1 min-h-0">
+          <div className="flex items-center px-4 py-2 bg-slate-800 border-b border-slate-700">
+            <span className="text-xs text-slate-400 font-mono">Program.cs</span>
+            <span className="ml-3 text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-400 font-semibold uppercase tracking-wide">Read-only</span>
+          </div>
+          <div style={{ height: 'calc(100% - 37px)' }}>
+            <Editor
+              height="100%"
+              language="csharp"
+              theme="vs-dark"
+              value={submittedCode || challenge.starterCode || ''}
+              options={{
+                fontSize: 13,
+                lineHeight: 20,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                wordWrap: 'on',
+                tabSize: 4,
+                readOnly: true,
+                padding: { top: 12, bottom: 12 },
+                domReadOnly: true,
+                cursorStyle: 'line',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   async function handleRun() {
     setRunning(true)
     setRunResult(null)
@@ -110,7 +159,7 @@ export default function CodeChallenge({ challenge, onAllPassed }) {
       const result = await runCSharp(code, challenge.testCases || [])
       setRunResult(result)
       if (result.success && result.results.every((r) => r.passed)) {
-        onAllPassed?.()
+        onAllPassed?.(code)
       }
     } catch (err) {
       setRunResult({ success: false, buildError: err.message, results: [] })

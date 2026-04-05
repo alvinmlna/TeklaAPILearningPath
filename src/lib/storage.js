@@ -36,18 +36,17 @@ export async function addUser(user) {
   return writeData(data)
 }
 
-export async function markComplete(userId, itemId) {
+export async function markComplete(userId, itemId, submittedCode = null) {
   const data = await readData()
   const alreadyDone = data.progress.some(
     (p) => p.userId === userId && p.itemId === itemId
   )
   if (alreadyDone) return { success: true, alreadyExisted: true }
 
-  data.progress.push({
-    userId,
-    itemId,
-    completedAt: new Date().toISOString(),
-  })
+  const record = { userId, itemId, completedAt: new Date().toISOString() }
+  if (typeof submittedCode === 'string' && submittedCode.length > 0) record.submittedCode = submittedCode
+
+  data.progress.push(record)
   const result = await writeData(data)
   return { ...result, alreadyExisted: false }
 }
@@ -105,4 +104,33 @@ export function getLatestItemPerUser(progress) {
  */
 export async function runCSharp(code, testCases) {
   return api().runCSharp({ code, testCases })
+}
+
+// ─── Quiz ─────────────────────────────────────────────────────────────────────
+
+export async function setUserProgress(userId, itemId, completed) {
+  const data = await readData()
+  if (completed) {
+    const exists = data.progress.some((p) => p.userId === userId && p.itemId === itemId)
+    if (!exists) {
+      data.progress.push({ userId, itemId, completedAt: new Date().toISOString() })
+    }
+  } else {
+    data.progress = data.progress.filter(
+      (p) => !(p.userId === userId && p.itemId === itemId)
+    )
+  }
+  return writeData(data)
+}
+
+export async function saveItemQuiz(itemId, quiz) {
+  const data = await readData()
+  const item = data.trainingItems.find((i) => i.id === itemId)
+  if (!item) return { success: false, error: 'Item not found' }
+  if (quiz === null) {
+    delete item.quiz
+  } else {
+    item.quiz = quiz
+  }
+  return writeData(data)
 }

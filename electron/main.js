@@ -52,6 +52,46 @@ const DEFAULT_DATA = {
       title: 'Visual Studio Overview',
       description: 'Getting started with Visual Studio IDE — solutions, projects, debugger, and tooling.',
       youtubeUrl: 'https://www.youtube.com/watch?v=VDom7uoFnqs',
+      quiz: {
+        passMark: 80,
+        questions: [
+          {
+            id: 'dasar2-q1',
+            question: 'What is the keyboard shortcut to build a solution in Visual Studio?',
+            options: ['Ctrl+B', 'F5', 'Ctrl+Shift+B', 'Ctrl+F5'],
+            correctIndex: 2,
+          },
+          {
+            id: 'dasar2-q2',
+            question: 'Which menu in Visual Studio is used to manage NuGet packages?',
+            options: ['Edit', 'Tools', 'Project', 'Build'],
+            correctIndex: 1,
+          },
+          {
+            id: 'dasar2-q3',
+            question: 'What does pressing F5 do in Visual Studio?',
+            options: ['Build the project', 'Run without debugging', 'Start debugging', 'Open the output window'],
+            correctIndex: 2,
+          },
+          {
+            id: 'dasar2-q4',
+            question: "In Visual Studio, what is a 'Solution'?",
+            options: [
+              'A single C# file',
+              'A container that holds one or more related projects',
+              'A configuration file for build settings',
+              'A type of Visual Studio extension',
+            ],
+            correctIndex: 1,
+          },
+          {
+            id: 'dasar2-q5',
+            question: 'Which window in Visual Studio shows compile errors and warnings?',
+            options: ['Solution Explorer', 'Output window', 'Error List', 'Properties window'],
+            correctIndex: 2,
+          },
+        ],
+      },
     },
     {
       id: 'dasar-3',
