@@ -1,0 +1,48 @@
+{
+  "users": [],
+  "progress": [],
+  "trainingItems": [
+    {
+      "id": "dasar-1",
+      "category": "Dasar Pemograman",
+      "title": "Programming Overview",
+      "description": "Introduction to programming concepts and fundamentals used in Tekla development.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=zOjov-2OZ0E"
+    },
+    {
+      "id": "dasar-2",
+      "category": "Dasar Pemograman",
+      "title": "Visual Studio Overview",
+      "description": "Getting started with Visual Studio IDE — solutions, projects, debugger, and tooling.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=VDom7uoFnqs"
+    },
+    {
+      "id": "dasar-3",
+      "category": "Dasar Pemograman",
+      "title": "WinForm Overview",
+      "description": "Building desktop UIs with Windows Forms — controls, events, and layouts.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=UBs_Fk4lBBs"
+    },
+    {
+      "id": "found-1",
+      "category": "Foundational",
+      "title": "If-Else Statements",
+      "description": "Conditional logic with if-else — decision-making in code.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=HQS_y0GY8-Y"
+    },
+    {
+      "id": "found-2",
+      "category": "Foundational",
+      "title": "Switch Statement",
+      "description": "Using switch-case for multi-branch conditionals efficiently.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=7Bc4CtE3G9k"
+    },
+    {
+      "id": "tekla-1",
+      "category": "Tekla API",
+      "title": "Connecting to Tekla",
+      "description": "Setting up and connecting to Tekla Structures via the Open API.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    }
+  ]
+}
