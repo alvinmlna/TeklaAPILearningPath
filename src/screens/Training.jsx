@@ -63,6 +63,15 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
     if (initialItem) setSelectedItem(initialItem)
   }, [initialItem])
 
+  // Escape → back to dashboard
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Escape') onBack()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onBack])
+
   const handleSelect = (item) => {
     setSelectedItem(item)
     setJustMarked(false)
