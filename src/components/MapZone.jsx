@@ -163,7 +163,14 @@ function CheckpointNode({ item, zone, done, locked, usersOnNode, onClick, stepNu
             <UserAvatar key={u.id} user={u} size="xs" ring tooltip />
           ))}
           {usersOnNode.length > 3 && (
-            <span className="text-[9px] text-slate-400 ml-1 self-center">+{usersOnNode.length - 3}</span>
+            <div
+              className="w-5 h-5 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center flex-shrink-0"
+              title={`+${usersOnNode.length - 3} more`}
+            >
+              <span className="text-[8px] font-bold text-slate-500 leading-none">
+                {usersOnNode.length - 3 > 99 ? '99+' : `+${usersOnNode.length - 3}`}
+              </span>
+            </div>
           )}
         </div>
       )}

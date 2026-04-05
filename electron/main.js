@@ -4,35 +4,55 @@ const fs = require('fs')
 const os = require('os')
 const { spawn, execSync } = require('child_process')
 
-// ─── Config: data file path ───────────────────────────────────────────────────
-// Priority: DATA_PATH env var → .env file beside the exe → default userData dir
-function resolveDataPath() {
-  // Check env var (useful for dev)
-  if (process.env.DATA_PATH) {
-    return process.env.DATA_PATH
-  }
+// ─── Settings (local per-machine config) ─────────────────────────────────────
+function getSettingsPath() {
+  return path.join(app.getPath('userData'), 'settings.json')
+}
 
-  // Try loading a .env file next to the executable (or project root in dev)
+function readSettings() {
+  try {
+    const p = getSettingsPath()
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf-8'))
+  } catch {}
+  return {}
+}
+
+function saveSettings(settings) {
+  fs.writeFileSync(getSettingsPath(), JSON.stringify(settings, null, 2), 'utf-8')
+}
+
+// ─── Config: data file path ───────────────────────────────────────────────────
+// Priority: DATA_PATH env var → .env file → settings.json → local fallback
+function resolveDataPath() {
+  // 1. Env var (dev override)
+  if (process.env.DATA_PATH) return process.env.DATA_PATH
+
+  // 2. .env file next to exe or project root
   const envCandidates = [
     path.join(app.getAppPath(), '.env'),
     path.join(path.dirname(process.execPath), '.env'),
     path.join(__dirname, '..', '.env'),
   ]
-
   for (const envFile of envCandidates) {
     if (fs.existsSync(envFile)) {
       const lines = fs.readFileSync(envFile, 'utf-8').split('\n')
       for (const line of lines) {
         const match = line.match(/^\s*DATA_PATH\s*=\s*(.+)\s*$/)
-        if (match) {
-          return match[1].trim().replace(/^["']|["']$/g, '')
-        }
+        if (match) return match[1].trim().replace(/^["']|["']$/g, '')
       }
     }
   }
 
-  // Default: app userData directory
+  // 3. settings.json configured by admin via the app UI
+  const settings = readSettings()
+  if (settings.dataPath) return settings.dataPath
+
+  // 4. Local fallback — signals "not configured" to the UI
   return path.join(app.getPath('userData'), 'data.json')
+}
+
+function isLocalFallbackPath(dataPath) {
+  return dataPath === path.join(app.getPath('userData'), 'data.json')
 }
 
 const DEFAULT_DATA = {
@@ -275,6 +295,14 @@ async function runCSharpCode(code, testCases) {
   }
 }
 
+// ─── Write queue — serialises all writes to prevent concurrent overwrites ─────
+let writeQueue = Promise.resolve()
+
+function queuedWrite(dataPath, data) {
+  writeQueue = writeQueue.then(() => writeDataFile(dataPath, data))
+  return writeQueue
+}
+
 // ─── Window ───────────────────────────────────────────────────────────────────
 let mainWindow
 
@@ -310,7 +338,7 @@ function createWindow() {
   })
 
   ipcMain.handle('write-data', (_event, data) => {
-    return writeDataFile(dataPath, data)
+    return queuedWrite(dataPath, data)
   })
 
   ipcMain.handle('get-system-info', () => {
@@ -320,8 +348,41 @@ function createWindow() {
     }
   })
 
-  ipcMain.handle('get-data-path', () => {
-    return dataPath
+  ipcMain.handle('get-data-path', () => dataPath)
+
+  ipcMain.handle('get-settings', () => {
+    return {
+      dataPath,
+      isLocalFallback: isLocalFallbackPath(dataPath),
+      settingsPath: getSettingsPath(),
+    }
+  })
+
+  ipcMain.handle('set-data-path', (_event, newPath) => {
+    try {
+      // Validate: make sure parent directory exists or is reachable
+      const dir = path.dirname(newPath)
+      if (!fs.existsSync(dir)) {
+        return { success: false, error: `Directory not found: ${dir}` }
+      }
+      const settings = readSettings()
+      settings.dataPath = newPath
+      saveSettings(settings)
+      // Relaunch so the new path takes effect
+      setTimeout(() => { app.relaunch(); app.exit(0) }, 300)
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle('browse-for-folder', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select shared data folder',
+      properties: ['openDirectory'],
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return path.join(result.filePaths[0], 'data.json')
   })
 
   ipcMain.handle('run-csharp', (_event, { code, testCases }) => {
@@ -357,5 +418,8 @@ app.on('before-quit', () => {
   ipcMain.removeAllListeners('write-data')
   ipcMain.removeAllListeners('get-system-info')
   ipcMain.removeAllListeners('get-data-path')
+  ipcMain.removeAllListeners('get-settings')
+  ipcMain.removeAllListeners('set-data-path')
+  ipcMain.removeAllListeners('browse-for-folder')
   ipcMain.removeAllListeners('run-csharp')
 })

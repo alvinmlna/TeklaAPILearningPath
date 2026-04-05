@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { addTrainingItem, deleteTrainingItem, saveItemQuiz, setUserProgress } from '../lib/storage'
+import { addTrainingItem, deleteTrainingItem, saveItemQuiz, setUserProgress, getSettings, setDataPath, browseForFolder } from '../lib/storage'
 
 const CATEGORIES = ['Dasar Pemograman', 'Foundational', 'Tekla API']
 const PIN = '1234'
@@ -492,6 +492,106 @@ function UserProgressEditor({ data, onRefresh }) {
   )
 }
 
+// ─── Data Source Settings ─────────────────────────────────────────────────────
+function DataSourceSettings() {
+  const [settings, setSettings] = React.useState(null)
+  const [inputPath, setInputPath] = React.useState('')
+  const [saving, setSaving] = React.useState(false)
+  const [msg, setMsg] = React.useState(null) // { type: 'ok'|'err', text }
+
+  React.useEffect(() => {
+    getSettings().then((s) => { setSettings(s); setInputPath(s.dataPath) })
+  }, [])
+
+  const handleBrowse = async () => {
+    const p = await browseForFolder()
+    if (p) { setInputPath(p); setMsg(null) }
+  }
+
+  const handleSave = async () => {
+    const p = inputPath.trim()
+    if (!p) return
+    setSaving(true)
+    setMsg(null)
+    const result = await setDataPath(p)
+    if (result.success) {
+      setMsg({ type: 'ok', text: 'Saved. App is restarting…' })
+    } else {
+      setMsg({ type: 'err', text: result.error || 'Save failed.' })
+      setSaving(false)
+    }
+  }
+
+  if (!settings) return <div className="flex items-center justify-center h-32"><p className="text-sm text-slate-400">Loading…</p></div>
+
+  return (
+    <div className="p-6 max-w-xl">
+      <h2 className="text-sm font-bold text-slate-700 mb-1">Shared Data File</h2>
+      <p className="text-xs text-slate-400 mb-5">
+        All users must point to the same file on a shared network drive. Changing this setting will restart the app.
+      </p>
+
+      {settings.isLocalFallback && (
+        <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5">
+          <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <p className="text-xs text-amber-700">
+            <span className="font-semibold">Not configured.</span> Currently using a local file — only this machine sees its data.
+            Set a network path below so all users share the same data.
+          </p>
+        </div>
+      )}
+
+      <label className="block text-xs font-semibold text-slate-500 mb-1.5">Data file path</label>
+      <div className="flex gap-2 mb-1.5">
+        <input
+          type="text"
+          value={inputPath}
+          onChange={(e) => { setInputPath(e.target.value); setMsg(null) }}
+          placeholder={`\\\\SERVER\\share\\training-tracker\\data.json`}
+          className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-indigo-400 transition-colors"
+        />
+        <button onClick={handleBrowse} className="flex-shrink-0 px-3 py-2.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+          Browse…
+        </button>
+      </div>
+      <p className="text-[11px] text-slate-400 mb-5">
+        The folder must exist and be accessible by all users. The file will be created automatically if it doesn't exist.
+      </p>
+
+      {msg && (
+        <div className={`mb-4 px-3 py-2.5 rounded-lg border text-xs font-medium ${
+          msg.type === 'ok' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-600'
+        }`}>
+          {msg.text}
+        </div>
+      )}
+
+      <button
+        onClick={handleSave}
+        disabled={saving || !inputPath.trim() || inputPath.trim() === settings.dataPath}
+        className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg px-5 py-2.5 text-sm transition-colors"
+      >
+        {saving ? (
+          <>
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Saving & Restarting…
+          </>
+        ) : 'Save & Restart App'}
+      </button>
+
+      <div className="mt-6 pt-5 border-t border-slate-100">
+        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Current active path</p>
+        <p className="text-xs font-mono text-slate-500 break-all">{settings.dataPath}</p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Admin panel ─────────────────────────────────────────────────────────
 function AdminPanel({ data, onBack, onRefresh }) {
   const { trainingItems = [] } = data || {}
@@ -620,6 +720,7 @@ function AdminPanel({ data, onBack, onRefresh }) {
           {[
             { key: 'items', label: 'Training Items', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25' },
             { key: 'progress', label: 'User Progress', icon: 'M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.75a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z' },
+            { key: 'datasource', label: 'Data Source', icon: 'M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125' },
           ].map(({ key, label, icon }) => (
             <button
               key={key}
@@ -641,13 +742,20 @@ function AdminPanel({ data, onBack, onRefresh }) {
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden gap-0">
+        {/* ── Data Source view ────────────────────────────────────────────── */}
+        {view === 'datasource' && (
+          <div className="flex-1 overflow-y-auto thin-scrollbar bg-white">
+            <DataSourceSettings />
+          </div>
+        )}
+
         {/* ── User Progress view ──────────────────────────────────────────── */}
         {view === 'progress' && (
           <UserProgressEditor data={data} onRefresh={onRefresh} />
         )}
 
         {/* ── Training Items view ─────────────────────────────────────────── */}
-        {view !== 'progress' && <>
+        {view !== 'progress' && view !== 'datasource' && <>
         {/* ── Add form ────────────────────────────────────────────────────── */}
         <aside className="w-80 flex-shrink-0 bg-white border-r-2 border-slate-100 overflow-y-auto thin-scrollbar p-5">
           <h2 className="font-bold text-slate-700 text-sm mb-4 uppercase tracking-wide">Add Training Item</h2>

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx skills:*)",
-      "Bash(set NODE_OPTIONS=--openssl-legacy-provider)"
+      "Bash(set NODE_OPTIONS=--openssl-legacy-provider)",
+      "Read(//c/Users/Alvin/AppData/Roaming/training-tracker/**)",
+      "Bash(node -e ':*)"
     ]
   }
 }

@@ -1,27 +1,38 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { readData, getSystemInfo } from './lib/storage'
+import { readData, getSystemInfo, getSettings } from './lib/storage'
 import Register from './screens/Register'
 import Dashboard from './screens/Dashboard'
 import Training from './screens/Training'
 import Admin from './screens/Admin'
+import Setup from './screens/Setup'
 
-// Screens: 'loading' | 'register' | 'dashboard' | 'training' | 'admin'
+// Screens: 'loading' | 'setup' | 'register' | 'dashboard' | 'training' | 'admin'
 
 export default function App() {
   const [screen, setScreen] = useState('loading')
   const [currentUser, setCurrentUser] = useState(null)
   const [data, setData] = useState(null)
   const [selectedItem, setSelectedItem] = useState(null)
+  const [settings, setSettings] = useState(null)
+  const [sysInfo, setSysInfo] = useState(null)
 
   const loadAndRoute = useCallback(async () => {
     try {
-      const [appData, sysInfo] = await Promise.all([readData(), getSystemInfo()])
+      const [appData, sysInfoResult, appSettings] = await Promise.all([readData(), getSystemInfo(), getSettings()])
       setData(appData)
+      setSettings(appSettings)
+      setSysInfo(sysInfoResult)
+
+      // Show setup screen if still on local fallback path (not configured for network)
+      if (appSettings.isLocalFallback) {
+        setScreen('setup')
+        return
+      }
 
       const match = appData.users.find(
         (u) =>
-          u.windowsAccount?.toLowerCase() === sysInfo.username?.toLowerCase() &&
-          u.computerName?.toLowerCase() === sysInfo.hostname?.toLowerCase()
+          u.windowsAccount?.toLowerCase() === sysInfoResult.username?.toLowerCase() &&
+          u.computerName?.toLowerCase() === sysInfoResult.hostname?.toLowerCase()
       )
 
       if (match) {
@@ -84,6 +95,24 @@ export default function App() {
           <p className="text-indigo-600 font-semibold text-lg">Loading Training Tracker…</p>
         </div>
       </div>
+    )
+  }
+
+  // ─── Setup (network path not configured) ─────────────────────────────────
+  if (screen === 'setup') {
+    return (
+      <Setup
+        currentDataPath={settings?.dataPath}
+        onSkip={() => {
+          const match = data?.users?.find(
+            (u) =>
+              u.windowsAccount?.toLowerCase() === sysInfo?.username?.toLowerCase() &&
+              u.computerName?.toLowerCase() === sysInfo?.hostname?.toLowerCase()
+          )
+          if (match) { setCurrentUser(match); setScreen('dashboard') }
+          else setScreen('register')
+        }}
+      />
     )
   }
 

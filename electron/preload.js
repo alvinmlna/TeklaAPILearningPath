@@ -28,8 +28,25 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   /**
    * Compile and run user-supplied C# code against test cases.
-   * @param {{ code: string, testCases: Array<{ input: string, expected: string }> }} opts
-   * @returns {Promise<{ success: boolean, buildError: string|null, results: Array<{ input, expected, actual, stderr, passed }> }>}
    */
   runCSharp: (opts) => ipcRenderer.invoke('run-csharp', opts),
+
+  /**
+   * Get current data path settings.
+   * @returns {Promise<{ dataPath: string, isLocalFallback: boolean, settingsPath: string }>}
+   */
+  getSettings: () => ipcRenderer.invoke('get-settings'),
+
+  /**
+   * Save a new data path to settings.json and relaunch.
+   * @param {string} newPath
+   * @returns {Promise<{ success: boolean, error?: string }>}
+   */
+  setDataPath: (newPath) => ipcRenderer.invoke('set-data-path', newPath),
+
+  /**
+   * Open a folder picker dialog and return the selected data.json path.
+   * @returns {Promise<string|null>}
+   */
+  browseForFolder: () => ipcRenderer.invoke('browse-for-folder'),
 })

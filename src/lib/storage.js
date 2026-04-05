@@ -28,6 +28,18 @@ export async function getDataPath() {
   return api().getDataPath()
 }
 
+export async function getSettings() {
+  return api().getSettings()
+}
+
+export async function setDataPath(newPath) {
+  return api().setDataPath(newPath)
+}
+
+export async function browseForFolder() {
+  return api().browseForFolder()
+}
+
 // ─── Convenience helpers ──────────────────────────────────────────────────────
 
 export async function addUser(user) {
