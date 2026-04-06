@@ -23,12 +23,6 @@ export default function App() {
       setSettings(appSettings)
       setSysInfo(sysInfoResult)
 
-      // Show setup screen if still on local fallback path (not configured for network)
-      if (appSettings.isLocalFallback) {
-        setScreen('setup')
-        return
-      }
-
       const match = appData.users.find(
         (u) =>
           u.windowsAccount?.toLowerCase() === sysInfoResult.username?.toLowerCase() &&

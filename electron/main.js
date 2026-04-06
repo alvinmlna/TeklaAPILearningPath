@@ -29,10 +29,11 @@ function resolveDataPath() {
 
   // 2. .env file next to exe or project root
   const envCandidates = [
+    process.env.PORTABLE_EXECUTABLE_DIR && path.join(process.env.PORTABLE_EXECUTABLE_DIR, '.env'),
     path.join(app.getAppPath(), '.env'),
     path.join(path.dirname(process.execPath), '.env'),
     path.join(__dirname, '..', '.env'),
-  ]
+  ].filter(Boolean)
   for (const envFile of envCandidates) {
     if (fs.existsSync(envFile)) {
       const lines = fs.readFileSync(envFile, 'utf-8').split('\n')
