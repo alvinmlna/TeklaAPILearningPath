@@ -2,7 +2,55 @@ import React, { useState, useMemo } from 'react'
 import { addTrainingItem, deleteTrainingItem, saveItemQuiz, saveTrainingItemMeta, resetTrainingItems, setUserProgress, getSettings, setDataPath, browseForFolder } from '../lib/storage'
 
 const CATEGORIES = ['Programming Fundamental', 'Visual Studio', 'Windows Form', 'Tekla Open API', 'Intermediate']
-const PIN = '1234'
+const PIN = '1873'
+const MAX_ATTEMPTS = 3
+const LOCK_DURATION_MS = 1 * 60 * 60 * 1000 // 1 hour
+const LOCK_KEY = 'admin_lock'
+
+function getLockState() {
+  try {
+    const raw = localStorage.getItem(LOCK_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch { return null }
+}
+
+function setLockState(state) {
+  localStorage.setItem(LOCK_KEY, JSON.stringify(state))
+}
+
+function clearLockState() {
+  localStorage.removeItem(LOCK_KEY)
+}
+
+function isCurrentlyLocked() {
+  const lock = getLockState()
+  if (!lock) return false
+  if (lock.attempts < MAX_ATTEMPTS) return false
+  const elapsed = Date.now() - lock.lockedAt
+  if (elapsed >= LOCK_DURATION_MS) {
+    clearLockState()
+    return false
+  }
+  return true
+}
+
+function getLockRemainingMs() {
+  const lock = getLockState()
+  if (!lock || !lock.lockedAt) return 0
+  return Math.max(0, LOCK_DURATION_MS - (Date.now() - lock.lockedAt))
+}
+
+function recordFailedAttempt() {
+  const lock = getLockState() || { attempts: 0, lockedAt: null }
+  lock.attempts += 1
+  if (lock.attempts >= MAX_ATTEMPTS) lock.lockedAt = Date.now()
+  setLockState(lock)
+}
+
+function resetAttempts() {
+  clearLockState()
+}
 
 const CATEGORY_COLORS = {
   'Programming Fundamental': {
@@ -37,12 +85,74 @@ const CATEGORY_COLORS = {
   },
 }
 
+// ─── Countdown display ────────────────────────────────────────────────────────
+function useCountdown(targetMs) {
+  const [remaining, setRemaining] = useState(targetMs)
+  React.useEffect(() => {
+    if (remaining <= 0) return
+    const id = setInterval(() => {
+      const r = getLockRemainingMs()
+      setRemaining(r)
+      if (r <= 0) clearInterval(id)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
+  const h = Math.floor(remaining / 3600000)
+  const m = Math.floor((remaining % 3600000) / 60000)
+  const s = Math.floor((remaining % 60000) / 1000)
+  return `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+}
+
+// ─── Locked screen ────────────────────────────────────────────────────────────
+function LockedScreen({ onBack, onUnlocked }) {
+  const countdown = useCountdown(getLockRemainingMs())
+
+  React.useEffect(() => {
+    if (getLockRemainingMs() <= 0) {
+      resetAttempts()
+      onUnlocked()
+    }
+  })
+
+  return (
+    <div className="h-screen flex items-center justify-center bg-slate-100">
+      <div className="bg-white rounded-3xl p-10 w-full max-w-sm text-center">
+        <div className="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+          <svg className="w-7 h-7 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-slate-800 mb-1">Admin Locked</h2>
+        <p className="text-slate-400 text-sm mb-2">Too many incorrect attempts.</p>
+        <p className="text-rose-500 font-semibold text-sm mb-6">Try again in {countdown}</p>
+        <button onClick={onBack} className="text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors">
+          ← Back
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── PIN gate ─────────────────────────────────────────────────────────────────
 function PinGate({ onUnlock, onBack }) {
+  const [locked, setLocked] = useState(isCurrentlyLocked)
   const [digits, setDigits] = useState(['', '', '', ''])
   const [error, setError] = useState(false)
   const [shake, setShake] = useState(false)
+  const [attemptsLeft, setAttemptsLeft] = useState(() => {
+    const s = getLockState()
+    return MAX_ATTEMPTS - (s?.attempts || 0)
+  })
   const refs = [React.createRef(), React.createRef(), React.createRef(), React.createRef()]
+
+  if (locked) {
+    return (
+      <LockedScreen
+        onBack={onBack}
+        onUnlocked={() => { setLocked(false); setAttemptsLeft(MAX_ATTEMPTS) }}
+      />
+    )
+  }
 
   const handleDigit = (idx, val) => {
     if (!/^\d?$/.test(val)) return
@@ -56,14 +166,21 @@ function PinGate({ onUnlock, onBack }) {
     const pin = next.join('')
     if (pin.length === 4) {
       if (pin === PIN) {
+        resetAttempts()
         onUnlock()
       } else {
+        recordFailedAttempt()
+        const nowLocked = isCurrentlyLocked()
+        const s = getLockState()
+        const left = MAX_ATTEMPTS - (s?.attempts || 0)
+        setAttemptsLeft(Math.max(0, left))
         setError(true)
         setShake(true)
         setTimeout(() => {
           setDigits(['', '', '', ''])
           setShake(false)
-          refs[0].current?.focus()
+          if (nowLocked) setLocked(true)
+          else refs[0].current?.focus()
         }, 600)
       }
     }
@@ -97,7 +214,11 @@ function PinGate({ onUnlock, onBack }) {
             />
           ))}
         </div>
-        {error && <p className="text-rose-500 text-sm font-medium mb-4">Incorrect PIN. Try again.</p>}
+        {error && (
+          <p className="text-rose-500 text-sm font-medium mb-4">
+            Incorrect PIN.{attemptsLeft > 0 ? ` ${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} remaining.` : ''}
+          </p>
+        )}
         <button onClick={onBack} className="text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors">
           ← Cancel
         </button>

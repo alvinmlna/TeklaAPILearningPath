@@ -282,12 +282,12 @@ export default function MapZone({
         )}
       </div>
 
-      {/* ── Nodes row ──────────────────────────────────────────────────────── */}
+      {/* ── Nodes grid (wraps into rows of 4) ─────────────────────────────── */}
       <div className="px-6 py-5 bg-white">
         {items.length === 0 ? (
           <p className="text-xs text-slate-400 italic text-center py-2">No training items yet.</p>
         ) : (
-          <div className="flex items-start justify-start gap-0 overflow-x-auto no-scrollbar px-1 py-2">
+          <div className="flex flex-wrap gap-y-6 gap-x-0">
             {items.map((item, idx) => {
               const done = progress.some(
                 (p) => p.itemId === item.id && p.userId === currentUser?.id
@@ -297,6 +297,7 @@ export default function MapZone({
               )
               const itemLocked = locked || (!done && !prevDone)
               const usersHere = users.filter((u) => latestItemsMap[u.id]?.itemId === item.id)
+              const isLastInRow = (idx + 1) % 4 === 0
               const isLast = idx === items.length - 1
 
               return (
@@ -310,7 +311,7 @@ export default function MapZone({
                     onClick={itemLocked ? undefined : () => onItemClick(item)}
                     stepNumber={idx + 1}
                   />
-                  {!isLast && <NodeConnector done={done} locked={itemLocked} />}
+                  {!isLast && !isLastInRow && <NodeConnector done={done} locked={itemLocked} />}
                 </React.Fragment>
               )
             })}

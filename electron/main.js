@@ -94,7 +94,7 @@ function isLocalFallbackPath(dataPath) {
 
 // User data seed — just empty arrays; actual content lives in training.json
 function getDefaultData() {
-  return { users: [], progress: [] }
+  return { users: [], progress: [], version: 0 }
 }
 
 // Training seed — reads trainingItems from the bundled data.json
@@ -137,6 +137,8 @@ function readDataFile(dataPath) {
     ensureDataFile(dataPath)
     const raw = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
     const { trainingItems: _ignored, ...userData } = raw
+    // Ensure version is always present
+    if (!userData.version) userData.version = 0
     return userData
   } catch (err) {
     logger.error('Data', 'Failed to read data file', err)
@@ -144,12 +146,51 @@ function readDataFile(dataPath) {
   }
 }
 
+// Merge two sets of users/progress — union by key, never lose records
+function mergeUserData(incoming, current) {
+  const userMap = {}
+  for (const u of (current.users || [])) userMap[u.id] = u
+  for (const u of (incoming.users || [])) userMap[u.id] = u
+
+  const progressMap = {}
+  for (const p of (current.progress || [])) progressMap[`${p.userId}:${p.itemId}`] = p
+  for (const p of (incoming.progress || [])) {
+    const key = `${p.userId}:${p.itemId}`
+    if (!progressMap[key]) progressMap[key] = p
+  }
+
+  return {
+    users: Object.values(userMap),
+    progress: Object.values(progressMap),
+    version: (current.version || 0) + 1,
+  }
+}
+
 function writeDataFile(dataPath, data) {
   try {
     const dir = path.dirname(dataPath)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-    const { trainingItems: _ignored, ...userData } = data
-    fs.writeFileSync(dataPath, JSON.stringify(userData, null, 2), 'utf-8')
+    const { trainingItems: _ignored, ...incoming } = data
+
+    // Optimistic concurrency: re-read and merge before writing
+    let toWrite = incoming
+    if (fs.existsSync(dataPath)) {
+      try {
+        const { trainingItems: _t, ...current } = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
+        if ((current.version || 0) !== (incoming.version || 0)) {
+          logger.warn('Data', `Version mismatch (current=${current.version} incoming=${incoming.version}) — merging`)
+          toWrite = mergeUserData(incoming, current)
+        } else {
+          toWrite = { ...incoming, version: (incoming.version || 0) + 1 }
+        }
+      } catch {
+        toWrite = { ...incoming, version: (incoming.version || 0) + 1 }
+      }
+    } else {
+      toWrite = { ...incoming, version: 1 }
+    }
+
+    fs.writeFileSync(dataPath, JSON.stringify(toWrite, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     logger.error('Data', 'Failed to write data file', err)
