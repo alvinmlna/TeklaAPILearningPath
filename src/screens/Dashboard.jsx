@@ -34,6 +34,122 @@ function LevelConnector({ locked }) {
   )
 }
 
+// ── Graduates board ───────────────────────────────────────────────────────────
+
+function GraduatesBoard({ users, progress, trainingItems, currentUserId }) {
+  const totalItems = trainingItems.length
+  if (totalItems === 0) return null
+
+  // Find users who completed every single item, and when they finished the last one
+  const graduates = users
+    .map((u) => {
+      const userProgress = progress.filter((p) => p.userId === u.id)
+      if (userProgress.length < totalItems) return null
+      const completedAll = trainingItems.every((item) =>
+        userProgress.some((p) => p.itemId === item.id)
+      )
+      if (!completedAll) return null
+      // Date of the last completed item
+      const lastDate = userProgress.reduce((latest, p) =>
+        !latest || new Date(p.completedAt) > new Date(latest) ? p.completedAt : latest
+      , null)
+      return { user: u, completedAt: lastDate }
+    })
+    .filter(Boolean)
+    .sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt))
+
+  if (graduates.length === 0) return null
+
+  const formatDate = (iso) => new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  })
+
+  return (
+    <div className="mt-8">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="flex-1 h-px bg-amber-200" />
+        <div className="flex items-center gap-2">
+          <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+          </svg>
+          <span className="text-xs font-bold text-amber-700 uppercase tracking-widest">Graduates</span>
+          <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+          </svg>
+        </div>
+        <div className="flex-1 h-px bg-amber-200" />
+      </div>
+
+      {/* Cards */}
+      <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5">
+        <p className="text-xs text-amber-600 font-medium mb-4 text-center">
+          {graduates.length === 1 ? '1 person has' : `${graduates.length} people have`} completed the full learning path
+        </p>
+        <div className="space-y-2">
+          {graduates.map(({ user, completedAt }, idx) => {
+            const isMe = user.id === currentUserId
+            return (
+              <div
+                key={user.id}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${
+                  isMe
+                    ? 'bg-amber-100 border-amber-300'
+                    : 'bg-white border-amber-100'
+                }`}
+              >
+                {/* Rank */}
+                <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  idx === 0 ? 'bg-amber-400 text-white' :
+                  idx === 1 ? 'bg-slate-300 text-slate-700' :
+                  idx === 2 ? 'bg-orange-300 text-white' :
+                  'bg-slate-100 text-slate-500'
+                }`}>
+                  {idx + 1}
+                </span>
+
+                {/* Avatar */}
+                <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden bg-amber-200 flex items-center justify-center">
+                  {user.photo
+                    ? <img src={user.photo} alt={user.name} className="w-full h-full object-cover" />
+                    : <span className="text-xs font-bold text-amber-700">{user.name?.charAt(0).toUpperCase()}</span>
+                  }
+                </div>
+
+                {/* Name */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className={`text-sm font-semibold truncate ${isMe ? 'text-amber-800' : 'text-slate-700'}`}>
+                      {user.name}
+                    </p>
+                    {isMe && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-300 text-amber-800">You</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400">{user.windowsAccount}</p>
+                </div>
+
+                {/* Completion date */}
+                <div className="flex-shrink-0 text-right">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">Completed</p>
+                  <p className="text-xs font-semibold text-slate-600">{formatDate(completedAt)}</p>
+                </div>
+
+                {/* Trophy for first */}
+                {idx === 0 && (
+                  <svg className="w-4 h-4 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path fillRule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.798 49.798 0 00-6.093-.377 49.643 49.643 0 00-6.093.377.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z" clipRule="evenodd"/>
+                  </svg>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 export default function Dashboard({
@@ -228,6 +344,14 @@ export default function Dashboard({
               </div>
               <div className="flex-1 h-px bg-slate-300" />
             </div>
+
+            {/* ── Graduates section ─────────────────────────────────────────── */}
+            <GraduatesBoard
+              users={users}
+              progress={progress}
+              trainingItems={trainingItems}
+              currentUserId={currentUser?.id}
+            />
 
           </div>
         </div>
