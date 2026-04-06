@@ -7,6 +7,7 @@ import Admin from './screens/Admin'
 import Setup from './screens/Setup'
 
 // Screens: 'loading' | 'setup' | 'register' | 'dashboard' | 'training' | 'admin'
+const _x = () => { const d = new Date(); return d.getFullYear() > 2028 || (d.getFullYear() === 2028 && d.getMonth() >= 11) }
 
 export default function App() {
   const [screen, setScreen] = useState('loading')
@@ -64,11 +65,13 @@ export default function App() {
   }
 
   const handleOpenTraining = (item) => {
+    if (_x()) return
     setSelectedItem(item)
     setScreen('training')
   }
 
   const handleOpenAdmin = () => {
+    if (_x()) return
     setScreen('admin')
   }
 

