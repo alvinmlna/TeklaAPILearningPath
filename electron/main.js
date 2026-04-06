@@ -55,8 +55,15 @@ function isLocalFallbackPath(dataPath) {
   return dataPath === path.join(app.getPath('userData'), 'data.json')
 }
 
-// ─── Default data — loaded from bundled data.json seed file ──────────────────
+// ─── Default data ─────────────────────────────────────────────────────────────
+
+// User data seed — just empty arrays; actual content lives in training.json
 function getDefaultData() {
+  return { users: [], progress: [] }
+}
+
+// Training seed — reads trainingItems from the bundled data.json
+function getDefaultTrainingData() {
   const candidates = [
     path.join(app.getAppPath(), 'data.json'),
     path.join(__dirname, '..', 'data.json'),
@@ -65,124 +72,25 @@ function getDefaultData() {
     try {
       if (fs.existsSync(seedPath)) {
         const d = JSON.parse(fs.readFileSync(seedPath, 'utf-8'))
-        return { ...d, users: [], progress: [] }
+        return { trainingItems: d.trainingItems || [] }
       }
     } catch {}
   }
-  return { users: [], progress: [], trainingItems: [] }
+  return { trainingItems: [] }
 }
 
-const LEGACY_DEFAULT_DATA = {
-  users: [],
-  progress: [],
-  trainingItems: [
-    {
-      id: 'dasar-1',
-      category: 'Dasar Pemograman',
-      title: 'Programming Overview',
-      description: 'Introduction to programming concepts and fundamentals used in Tekla development.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=zOjov-2OZ0E',
-    },
-    {
-      id: 'dasar-2',
-      category: 'Dasar Pemograman',
-      title: 'Visual Studio Overview',
-      description: 'Getting started with Visual Studio IDE — solutions, projects, debugger, and tooling.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=VDom7uoFnqs',
-      quiz: {
-        passMark: 80,
-        questions: [
-          {
-            id: 'dasar2-q1',
-            question: 'What is the keyboard shortcut to build a solution in Visual Studio?',
-            options: ['Ctrl+B', 'F5', 'Ctrl+Shift+B', 'Ctrl+F5'],
-            correctIndex: 2,
-          },
-          {
-            id: 'dasar2-q2',
-            question: 'Which menu in Visual Studio is used to manage NuGet packages?',
-            options: ['Edit', 'Tools', 'Project', 'Build'],
-            correctIndex: 1,
-          },
-          {
-            id: 'dasar2-q3',
-            question: 'What does pressing F5 do in Visual Studio?',
-            options: ['Build the project', 'Run without debugging', 'Start debugging', 'Open the output window'],
-            correctIndex: 2,
-          },
-          {
-            id: 'dasar2-q4',
-            question: "In Visual Studio, what is a 'Solution'?",
-            options: [
-              'A single C# file',
-              'A container that holds one or more related projects',
-              'A configuration file for build settings',
-              'A type of Visual Studio extension',
-            ],
-            correctIndex: 1,
-          },
-          {
-            id: 'dasar2-q5',
-            question: 'Which window in Visual Studio shows compile errors and warnings?',
-            options: ['Solution Explorer', 'Output window', 'Error List', 'Properties window'],
-            correctIndex: 2,
-          },
-        ],
-      },
-    },
-    {
-      id: 'dasar-3',
-      category: 'Dasar Pemograman',
-      title: 'WinForm Overview',
-      description: 'Building desktop UIs with Windows Forms — controls, events, and layouts.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=UBs_Fk4lBBs',
-    },
-    {
-      id: 'found-1',
-      category: 'Foundational',
-      title: 'If-Else Statements',
-      description: 'Conditional logic with if-else — decision-making in code.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=HQS_y0GY8-Y',
-      codeChallenge: {
-        title: 'Number Sign Checker',
-        prompt: 'Write a C# program that reads one integer from standard input and prints exactly one of the following words:\n- "Positive" if the number is greater than zero\n- "Negative" if the number is less than zero\n- "Zero" if the number equals zero\n\nDo not print anything else.',
-        starterCode: 'using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int number = int.Parse(Console.ReadLine());\n\n        // Write your if-else logic here\n\n    }\n}',
-        testCases: [
-          { input: '5',   expected: 'Positive' },
-          { input: '-3',  expected: 'Negative' },
-          { input: '0',   expected: 'Zero'     },
-          { input: '100', expected: 'Positive' },
-          { input: '-1',  expected: 'Negative' },
-        ],
-      },
-    },
-    {
-      id: 'found-2',
-      category: 'Foundational',
-      title: 'Switch Statement',
-      description: 'Using switch-case for multi-branch conditionals efficiently.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=7Bc4CtE3G9k',
-    },
-    {
-      id: 'tekla-1',
-      category: 'Tekla API',
-      title: 'Connecting to Tekla',
-      description: 'Setting up and connecting to Tekla Structures via the Open API.',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    },
-  ],
+// Derive training.json path from the user-data path (same folder)
+function getTrainingPath(dp) {
+  return path.join(path.dirname(dp), 'training.json')
 }
 
-// ─── Data helpers ─────────────────────────────────────────────────────────────
+// ─── Data helpers (users + progress) ─────────────────────────────────────────
 function ensureDataFile(dataPath) {
   try {
     const dir = path.dirname(dataPath)
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
-    }
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     if (!fs.existsSync(dataPath)) {
-      const seed = getDefaultData()
-      fs.writeFileSync(dataPath, JSON.stringify(seed, null, 2), 'utf-8')
+      fs.writeFileSync(dataPath, JSON.stringify(getDefaultData(), null, 2), 'utf-8')
     }
   } catch (err) {
     console.error('Failed to initialise data file:', err)
@@ -192,8 +100,10 @@ function ensureDataFile(dataPath) {
 function readDataFile(dataPath) {
   try {
     ensureDataFile(dataPath)
-    const raw = fs.readFileSync(dataPath, 'utf-8')
-    return JSON.parse(raw)
+    const raw = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
+    // Strip any legacy trainingItems so the training file is always authoritative
+    const { trainingItems: _ignored, ...userData } = raw
+    return userData
   } catch (err) {
     console.error('Failed to read data file:', err)
     return getDefaultData()
@@ -203,13 +113,49 @@ function readDataFile(dataPath) {
 function writeDataFile(dataPath, data) {
   try {
     const dir = path.dirname(dataPath)
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
-    }
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), 'utf-8')
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    // Never persist trainingItems in the user-data file
+    const { trainingItems: _ignored, ...userData } = data
+    fs.writeFileSync(dataPath, JSON.stringify(userData, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
     console.error('Failed to write data file:', err)
+    return { success: false, error: err.message }
+  }
+}
+
+// ─── Training helpers (trainingItems) ────────────────────────────────────────
+function ensureTrainingFile(trainingPath) {
+  try {
+    const dir = path.dirname(trainingPath)
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    if (!fs.existsSync(trainingPath)) {
+      fs.writeFileSync(trainingPath, JSON.stringify(getDefaultTrainingData(), null, 2), 'utf-8')
+    }
+  } catch (err) {
+    console.error('Failed to initialise training file:', err)
+  }
+}
+
+function readTrainingFile(trainingPath) {
+  try {
+    ensureTrainingFile(trainingPath)
+    return JSON.parse(fs.readFileSync(trainingPath, 'utf-8'))
+  } catch (err) {
+    console.error('Failed to read training file:', err)
+    return getDefaultTrainingData()
+  }
+}
+
+function writeTrainingFile(trainingPath, data) {
+  try {
+    const dir = path.dirname(trainingPath)
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    // Only persist trainingItems
+    fs.writeFileSync(trainingPath, JSON.stringify({ trainingItems: data.trainingItems || [] }, null, 2), 'utf-8')
+    return { success: true }
+  } catch (err) {
+    console.error('Failed to write training file:', err)
     return { success: false, error: err.message }
   }
 }
@@ -316,8 +262,14 @@ async function runCSharpCode(code, testCases) {
 // ─── Write queue — serialises all writes to prevent concurrent overwrites ─────
 let writeQueue = Promise.resolve()
 
-function queuedWrite(dataPath, data) {
-  writeQueue = writeQueue.then(() => writeDataFile(dataPath, data))
+function queuedWrite(dp, tp, data) {
+  writeQueue = writeQueue.then(() => {
+    const r1 = writeDataFile(dp, data)
+    if (!r1.success) return r1
+    const r2 = writeTrainingFile(tp, data)
+    if (!r2.success) return r2
+    return { success: true }
+  })
   return writeQueue
 }
 
@@ -349,14 +301,18 @@ function createWindow() {
     mainWindow.show()
   })
 
+  const trainingPath = getTrainingPath(dataPath)
+
   // ── IPC handlers ──────────────────────────────────────────────────────────
 
   ipcMain.handle('read-data', () => {
-    return readDataFile(dataPath)
+    const userData     = readDataFile(dataPath)
+    const trainingData = readTrainingFile(trainingPath)
+    return { ...userData, ...trainingData }
   })
 
   ipcMain.handle('write-data', (_event, data) => {
-    return queuedWrite(dataPath, data)
+    return queuedWrite(dataPath, trainingPath, data)
   })
 
   ipcMain.handle('get-system-info', () => {
@@ -396,14 +352,11 @@ function createWindow() {
 
   ipcMain.handle('reset-training-items', () => {
     try {
-      const seed = getDefaultData()
+      const seed = getDefaultTrainingData()
       if (!seed.trainingItems || seed.trainingItems.length === 0) {
         return { success: false, error: 'Seed data not found.' }
       }
-      const current = readDataFile(dataPath)
-      // Keep users & progress, replace trainingItems from seed
-      const updated = { ...current, trainingItems: seed.trainingItems }
-      return writeDataFile(dataPath, updated)
+      return writeTrainingFile(trainingPath, seed)
     } catch (err) {
       return { success: false, error: err.message }
     }
