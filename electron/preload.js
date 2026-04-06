@@ -49,4 +49,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
    * @returns {Promise<string|null>}
    */
   browseForFolder: () => ipcRenderer.invoke('browse-for-folder'),
+
+  /**
+   * Replace trainingItems in the current data file with the bundled seed data.
+   * Users and progress are preserved.
+   * @returns {Promise<{ success: boolean, error?: string }>}
+   */
+  resetTrainingItems: () => ipcRenderer.invoke('reset-training-items'),
 })

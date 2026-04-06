@@ -135,6 +135,20 @@ export async function setUserProgress(userId, itemId, completed) {
   return writeData(data)
 }
 
+export async function resetTrainingItems() {
+  return api().resetTrainingItems()
+}
+
+export async function saveTrainingItemMeta(itemId, { title, description, youtubeUrl }) {
+  const data = await readData()
+  const item = data.trainingItems.find((i) => i.id === itemId)
+  if (!item) return { success: false, error: 'Item not found' }
+  item.title = title
+  item.description = description
+  item.youtubeUrl = youtubeUrl
+  return writeData(data)
+}
+
 export async function saveItemQuiz(itemId, quiz) {
   const data = await readData()
   const item = data.trainingItems.find((i) => i.id === itemId)

@@ -394,6 +394,21 @@ function createWindow() {
     }
   })
 
+  ipcMain.handle('reset-training-items', () => {
+    try {
+      const seed = getDefaultData()
+      if (!seed.trainingItems || seed.trainingItems.length === 0) {
+        return { success: false, error: 'Seed data not found.' }
+      }
+      const current = readDataFile(dataPath)
+      // Keep users & progress, replace trainingItems from seed
+      const updated = { ...current, trainingItems: seed.trainingItems }
+      return writeDataFile(dataPath, updated)
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
+  })
+
   ipcMain.handle('browse-for-folder', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       title: 'Select shared data folder',

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { addTrainingItem, deleteTrainingItem, saveItemQuiz, setUserProgress, getSettings, setDataPath, browseForFolder } from '../lib/storage'
+import { addTrainingItem, deleteTrainingItem, saveItemQuiz, saveTrainingItemMeta, resetTrainingItems, setUserProgress, getSettings, setDataPath, browseForFolder } from '../lib/storage'
 
 const CATEGORIES = ['Programming Fundamental', 'Visual Studio', 'Windows Form', 'Tekla Open API', 'Intermediate']
 const PIN = '1234'
@@ -505,11 +505,13 @@ function UserProgressEditor({ data, onRefresh }) {
 }
 
 // ─── Data Source Settings ─────────────────────────────────────────────────────
-function DataSourceSettings() {
+function DataSourceSettings({ onRefresh }) {
   const [settings, setSettings] = React.useState(null)
   const [inputPath, setInputPath] = React.useState('')
   const [saving, setSaving] = React.useState(false)
   const [msg, setMsg] = React.useState(null) // { type: 'ok'|'err', text }
+  const [resetting, setResetting] = React.useState(false)
+  const [resetMsg, setResetMsg] = React.useState(null)
 
   React.useEffect(() => {
     getSettings().then((s) => { setSettings(s); setInputPath(s.dataPath) })
@@ -600,6 +602,58 @@ function DataSourceSettings() {
         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Current active path</p>
         <p className="text-xs font-mono text-slate-500 break-all">{settings.dataPath}</p>
       </div>
+
+      <div className="mt-6 pt-5 border-t border-slate-100">
+        <h2 className="text-sm font-bold text-slate-700 mb-1">Reset Training Content</h2>
+        <p className="text-xs text-slate-400 mb-4">
+          Replaces all training items with the latest built-in content. User accounts and progress records are preserved.
+          Use this if the training material appears empty or has outdated categories.
+        </p>
+        {resetMsg && (
+          <div className={`mb-4 px-3 py-2.5 rounded-lg border text-xs font-medium ${
+            resetMsg.type === 'ok' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-600'
+          }`}>
+            {resetMsg.text}
+          </div>
+        )}
+        <button
+          onClick={async () => {
+            if (!window.confirm('This will overwrite all training items with the default content. User progress will be kept. Continue?')) return
+            setResetting(true)
+            setResetMsg(null)
+            try {
+              const result = await resetTrainingItems()
+              if (result.success) {
+                setResetMsg({ type: 'ok', text: 'Training content reset successfully. Refreshing…' })
+                await onRefresh()
+              } else {
+                setResetMsg({ type: 'err', text: result.error || 'Reset failed.' })
+              }
+            } finally {
+              setResetting(false)
+            }
+          }}
+          disabled={resetting}
+          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg px-5 py-2.5 text-sm transition-colors"
+        >
+          {resetting ? (
+            <>
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              Resetting…
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Reset Training Content
+            </>
+          )}
+        </button>
+      </div>
     </div>
   )
 }
@@ -623,6 +677,46 @@ function AdminPanel({ data, onBack, onRefresh }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [filterCat, setFilterCat] = useState('All')
 
+  // Inline item editor state
+  const [editingItemId, setEditingItemId] = useState(null)
+  const [editForm, setEditForm] = useState({ title: '', description: '', youtubeUrl: '' })
+  const [editSaving, setEditSaving] = useState(false)
+  const [editMsg, setEditMsg] = useState(null) // { type: 'ok'|'err', text }
+
+  const openEdit = (item) => {
+    setEditingItemId(item.id)
+    setEditForm({ title: item.title, description: item.description || '', youtubeUrl: item.youtubeUrl || '' })
+    setEditMsg(null)
+    setDeleteConfirm(null)
+  }
+
+  const cancelEdit = () => {
+    setEditingItemId(null)
+    setEditMsg(null)
+  }
+
+  const handleEditSave = async (itemId) => {
+    if (!editForm.title.trim()) { setEditMsg({ type: 'err', text: 'Title is required.' }); return }
+    setEditSaving(true)
+    setEditMsg(null)
+    try {
+      const result = await saveTrainingItemMeta(itemId, {
+        title: editForm.title.trim(),
+        description: editForm.description.trim(),
+        youtubeUrl: editForm.youtubeUrl.trim(),
+      })
+      if (result.success) {
+        setEditMsg({ type: 'ok', text: 'Saved.' })
+        await onRefresh()
+        setTimeout(() => setEditingItemId(null), 800)
+      } else {
+        setEditMsg({ type: 'err', text: 'Save failed.' })
+      }
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
   const filteredItems = useMemo(
     () => filterCat === 'All' ? trainingItems : trainingItems.filter((i) => i.category === filterCat),
     [trainingItems, filterCat]
@@ -637,7 +731,6 @@ function AdminPanel({ data, onBack, onRefresh }) {
     setError('')
     setSuccess('')
     if (!form.title.trim()) { setError('Title is required.'); return }
-    if (!form.youtubeUrl.trim()) { setError('YouTube URL is required.'); return }
     setSaving(true)
     try {
       const newItem = {
@@ -757,7 +850,7 @@ function AdminPanel({ data, onBack, onRefresh }) {
         {/* ── Data Source view ────────────────────────────────────────────── */}
         {view === 'datasource' && (
           <div className="flex-1 overflow-y-auto thin-scrollbar bg-white">
-            <DataSourceSettings />
+            <DataSourceSettings onRefresh={onRefresh} />
           </div>
         )}
 
@@ -820,7 +913,7 @@ function AdminPanel({ data, onBack, onRefresh }) {
             </button>
           </form>
           <p className="mt-5 text-[11px] text-slate-400 leading-relaxed">
-            Categories are fixed: Dasar Pemograman, Foundational, and Tekla API.
+            YouTube URL is optional — leave empty to hide the video tab for that item.
           </p>
         </aside>
 
@@ -857,71 +950,174 @@ function AdminPanel({ data, onBack, onRefresh }) {
                 const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS['Foundational']
                 const pendingDelete = deleteConfirm === item.id
                 const hasQuiz = !!item.quiz
+                const isEditing = editingItemId === item.id
                 return (
                   <div key={item.id}
-                    className={`bg-white border-2 rounded-2xl px-5 py-4 flex items-start gap-4 transition-colors
-                      ${pendingDelete ? 'border-rose-300 bg-rose-50' : 'border-slate-100 hover:border-slate-200'}`}>
-                    <span className={`flex-shrink-0 w-2.5 h-2.5 rounded-full mt-1.5 ${colors.dot}`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start gap-2 flex-wrap">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${colors.badge}`}>{item.category}</span>
-                        <h3 className="font-semibold text-slate-800 text-sm">{item.title}</h3>
-                        {hasQuiz && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-600 flex items-center gap-1">
-                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-                            </svg>
-                            Quiz ({item.quiz.questions?.length ?? 0}q)
-                          </span>
+                    className={`bg-white border-2 rounded-2xl overflow-hidden transition-colors
+                      ${pendingDelete ? 'border-rose-300 bg-rose-50' : isEditing ? 'border-indigo-300' : 'border-slate-100 hover:border-slate-200'}`}>
+
+                    {/* ── Card header row ── */}
+                    <div className="px-5 py-4 flex items-start gap-4">
+                      <span className={`flex-shrink-0 w-2.5 h-2.5 rounded-full mt-1.5 ${colors.dot}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start gap-2 flex-wrap">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${colors.badge}`}>{item.category}</span>
+                          <h3 className="font-semibold text-slate-800 text-sm">{item.title}</h3>
+                          {hasQuiz && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-600 flex items-center gap-1">
+                              <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                              </svg>
+                              Quiz ({item.quiz.questions?.length ?? 0}q)
+                            </span>
+                          )}
+                          {item.youtubeUrl ? (
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-600">Has video</span>
+                          ) : (
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-600">No video</span>
+                          )}
+                        </div>
+                        {item.description && !isEditing && (
+                          <p className="text-slate-400 text-xs mt-1 leading-relaxed line-clamp-2">{item.description}</p>
+                        )}
+                        {item.youtubeUrl && !isEditing && (
+                          <p className="text-slate-300 text-[10px] mt-1 truncate font-mono">{item.youtubeUrl}</p>
                         )}
                       </div>
-                      {item.description && (
-                        <p className="text-slate-400 text-xs mt-1 leading-relaxed line-clamp-2">{item.description}</p>
-                      )}
-                      {item.youtubeUrl && (
-                        <p className="text-slate-300 text-[10px] mt-1 truncate font-mono">{item.youtubeUrl}</p>
-                      )}
-                    </div>
 
-                    <div className="flex-shrink-0 flex items-center gap-2">
-                      {/* Manage Quiz button */}
-                      {!pendingDelete && (
-                        <button
-                          onClick={() => openQuizEditor(item)}
-                          className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition-colors ${
-                            hasQuiz
-                              ? 'border-indigo-200 text-indigo-600 bg-indigo-50 hover:bg-indigo-100'
-                              : 'border-slate-200 text-slate-500 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50'
-                          }`}
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-                          </svg>
-                          {hasQuiz ? 'Edit Quiz' : 'Add Quiz'}
-                        </button>
-                      )}
+                      <div className="flex-shrink-0 flex items-center gap-2">
+                        {!pendingDelete && !isEditing && (
+                          <>
+                            {/* Edit button */}
+                            <button
+                              onClick={() => openEdit(item)}
+                              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 text-slate-500 hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                              </svg>
+                              Edit
+                            </button>
 
-                      {/* Delete */}
-                      {pendingDelete ? (
-                        <>
-                          <button onClick={() => handleDelete(item.id)}
-                            className="text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 px-3 py-1.5 rounded-xl transition-colors">
-                            Delete
-                          </button>
-                          <button onClick={() => setDeleteConfirm(null)}
-                            className="text-xs font-medium text-slate-500 hover:text-slate-700 px-2 py-1.5 transition-colors">
+                            {/* Manage Quiz button */}
+                            <button
+                              onClick={() => openQuizEditor(item)}
+                              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition-colors ${
+                                hasQuiz
+                                  ? 'border-indigo-200 text-indigo-600 bg-indigo-50 hover:bg-indigo-100'
+                                  : 'border-slate-200 text-slate-500 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50'
+                              }`}
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                              </svg>
+                              {hasQuiz ? 'Edit Quiz' : 'Add Quiz'}
+                            </button>
+                          </>
+                        )}
+
+                        {/* Delete / Cancel-edit */}
+                        {isEditing ? (
+                          <button onClick={cancelEdit}
+                            className="text-xs font-medium text-slate-400 hover:text-slate-600 px-2 py-1.5 transition-colors">
                             Cancel
                           </button>
-                        </>
-                      ) : (
-                        <button onClick={() => setDeleteConfirm(item.id)}
-                          className="p-1.5 text-slate-300 hover:text-rose-400 transition-colors rounded-xl hover:bg-rose-50" title="Delete item">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      )}
+                        ) : pendingDelete ? (
+                          <>
+                            <button onClick={() => handleDelete(item.id)}
+                              className="text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 px-3 py-1.5 rounded-xl transition-colors">
+                              Delete
+                            </button>
+                            <button onClick={() => setDeleteConfirm(null)}
+                              className="text-xs font-medium text-slate-500 hover:text-slate-700 px-2 py-1.5 transition-colors">
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button onClick={() => setDeleteConfirm(item.id)}
+                            className="p-1.5 text-slate-300 hover:text-rose-400 transition-colors rounded-xl hover:bg-rose-50" title="Delete item">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
                     </div>
+
+                    {/* ── Inline edit form (expands below) ── */}
+                    {isEditing && (
+                      <div className="border-t border-indigo-100 bg-indigo-50 px-5 py-4 space-y-3">
+                        <p className="text-[11px] font-bold text-indigo-500 uppercase tracking-wide">Edit Item</p>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">Title *</label>
+                          <input
+                            type="text"
+                            value={editForm.title}
+                            onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-indigo-400 transition-colors"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">Description</label>
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+                            rows={2}
+                            placeholder="Brief description…"
+                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-indigo-400 transition-colors resize-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">
+                            YouTube URL
+                            <span className="ml-1 font-normal text-slate-400">(leave empty to hide video tab)</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={editForm.youtubeUrl}
+                            onChange={(e) => setEditForm((f) => ({ ...f, youtubeUrl: e.target.value }))}
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:outline-none focus:border-indigo-400 transition-colors"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-1">
+                          <button
+                            onClick={() => handleEditSave(item.id)}
+                            disabled={editSaving}
+                            className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
+                          >
+                            {editSaving ? (
+                              <>
+                                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                </svg>
+                                Saving…
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Save Changes
+                              </>
+                            )}
+                          </button>
+                          <button onClick={cancelEdit} className="text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors">
+                            Cancel
+                          </button>
+                          {editMsg && (
+                            <span className={`text-xs font-semibold ${editMsg.type === 'ok' ? 'text-emerald-600' : 'text-rose-500'}`}>
+                              {editMsg.text}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               })}
