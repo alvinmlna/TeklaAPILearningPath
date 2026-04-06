@@ -21,6 +21,40 @@ function saveSettings(settings) {
   fs.writeFileSync(getSettingsPath(), JSON.stringify(settings, null, 2), 'utf-8')
 }
 
+// ─── Logger ───────────────────────────────────────────────────────────────────
+// Log path is resolved lazily after dataPath is known; falls back to userData
+let _logPath = null
+
+function getLogPath() {
+  if (_logPath) return _logPath
+  return path.join(app.getPath('userData'), 'app.log')
+}
+
+function setLogPath(dataPath) {
+  _logPath = path.join(path.dirname(dataPath), 'app.log')
+}
+
+function log(level, context, message, err) {
+  try {
+    const timestamp = new Date().toISOString()
+    const errDetail = err
+      ? `\n  ${err.stack || err.message || String(err)}`
+      : ''
+    const line = `[${timestamp}] [${level}] [${context}] ${message}${errDetail}\n`
+    // Console mirror
+    if (level === 'ERROR') console.error(line.trimEnd())
+    else console.log(line.trimEnd())
+    // Append to file (ignore write errors — we can't log the logger)
+    fs.appendFileSync(getLogPath(), line, 'utf-8')
+  } catch {}
+}
+
+const logger = {
+  info:  (ctx, msg)      => log('INFO',  ctx, msg),
+  warn:  (ctx, msg)      => log('WARN',  ctx, msg),
+  error: (ctx, msg, err) => log('ERROR', ctx, msg, err),
+}
+
 // ─── Config: data file path ───────────────────────────────────────────────────
 // Priority: DATA_PATH env var → .env file → settings.json → local fallback
 function resolveDataPath() {
@@ -94,7 +128,7 @@ function ensureDataFile(dataPath) {
       fs.writeFileSync(dataPath, JSON.stringify(getDefaultData(), null, 2), 'utf-8')
     }
   } catch (err) {
-    console.error('Failed to initialise data file:', err)
+    logger.error('Data', 'Failed to initialise data file', err)
   }
 }
 
@@ -102,11 +136,10 @@ function readDataFile(dataPath) {
   try {
     ensureDataFile(dataPath)
     const raw = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
-    // Strip any legacy trainingItems so the training file is always authoritative
     const { trainingItems: _ignored, ...userData } = raw
     return userData
   } catch (err) {
-    console.error('Failed to read data file:', err)
+    logger.error('Data', 'Failed to read data file', err)
     return getDefaultData()
   }
 }
@@ -115,12 +148,11 @@ function writeDataFile(dataPath, data) {
   try {
     const dir = path.dirname(dataPath)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-    // Never persist trainingItems in the user-data file
     const { trainingItems: _ignored, ...userData } = data
     fs.writeFileSync(dataPath, JSON.stringify(userData, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
-    console.error('Failed to write data file:', err)
+    logger.error('Data', 'Failed to write data file', err)
     return { success: false, error: err.message }
   }
 }
@@ -134,7 +166,7 @@ function ensureTrainingFile(trainingPath) {
       fs.writeFileSync(trainingPath, JSON.stringify(getDefaultTrainingData(), null, 2), 'utf-8')
     }
   } catch (err) {
-    console.error('Failed to initialise training file:', err)
+    logger.error('Training', 'Failed to initialise training file', err)
   }
 }
 
@@ -143,7 +175,7 @@ function readTrainingFile(trainingPath) {
     ensureTrainingFile(trainingPath)
     return JSON.parse(fs.readFileSync(trainingPath, 'utf-8'))
   } catch (err) {
-    console.error('Failed to read training file:', err)
+    logger.error('Training', 'Failed to read training file', err)
     return getDefaultTrainingData()
   }
 }
@@ -152,11 +184,10 @@ function writeTrainingFile(trainingPath, data) {
   try {
     const dir = path.dirname(trainingPath)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-    // Only persist trainingItems
     fs.writeFileSync(trainingPath, JSON.stringify({ trainingItems: data.trainingItems || [] }, null, 2), 'utf-8')
     return { success: true }
   } catch (err) {
-    console.error('Failed to write training file:', err)
+    logger.error('Training', 'Failed to write training file', err)
     return { success: false, error: err.message }
   }
 }
@@ -279,6 +310,8 @@ let mainWindow
 
 function createWindow() {
   const dataPath = resolveDataPath()
+  setLogPath(dataPath)
+  logger.info('App', `Starting — data: ${dataPath} | training: ${getTrainingPath(dataPath)}`)
 
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -307,13 +340,23 @@ function createWindow() {
   // ── IPC handlers ──────────────────────────────────────────────────────────
 
   ipcMain.handle('read-data', () => {
-    const userData     = readDataFile(dataPath)
-    const trainingData = readTrainingFile(trainingPath)
-    return { ...userData, ...trainingData }
+    try {
+      const userData     = readDataFile(dataPath)
+      const trainingData = readTrainingFile(trainingPath)
+      return { ...userData, ...trainingData }
+    } catch (err) {
+      logger.error('IPC:read-data', 'Unhandled error', err)
+      throw err
+    }
   })
 
   ipcMain.handle('write-data', (_event, data) => {
-    return queuedWrite(dataPath, trainingPath, data)
+    try {
+      return queuedWrite(dataPath, trainingPath, data)
+    } catch (err) {
+      logger.error('IPC:write-data', 'Unhandled error', err)
+      throw err
+    }
   })
 
   ipcMain.handle('get-system-info', () => {
@@ -398,6 +441,15 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+
+// ─── Global error capture ─────────────────────────────────────────────────────
+process.on('uncaughtException', (err) => {
+  logger.error('Process', 'Uncaught exception', err)
+})
+
+process.on('unhandledRejection', (reason) => {
+  logger.error('Process', 'Unhandled promise rejection', reason instanceof Error ? reason : new Error(String(reason)))
 })
 
 // Clean up handlers when window closes to avoid duplicate registrations
