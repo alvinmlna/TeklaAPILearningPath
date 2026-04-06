@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu, protocol, net } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
@@ -453,6 +453,37 @@ function createWindow() {
     }
   })
 
+  ipcMain.handle('read-pdf', (_event, filePath) => {
+    try {
+      if (!filePath || !fs.existsSync(filePath)) return { success: false, error: 'File not found' }
+      const buffer = fs.readFileSync(filePath)
+      return { success: true, base64: buffer.toString('base64') }
+    } catch (err) {
+      logger.error('IPC:read-pdf', 'Failed to read PDF', err)
+      return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle('browse-for-pdf', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select PDF file',
+      filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+      properties: ['openFile'],
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
+  })
+
+  ipcMain.handle('browse-for-video', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select video file',
+      filters: [{ name: 'Video Files', extensions: ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm'] }],
+      properties: ['openFile'],
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
+  })
+
   ipcMain.handle('browse-for-folder', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       title: 'Select shared data folder',
@@ -476,9 +507,26 @@ function createWindow() {
   }
 }
 
+// ─── Local video protocol ─────────────────────────────────────────────────────
+// Must be called before app.whenReady()
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'localvideo', privileges: { secure: true, supportFetchAPI: true, stream: true } },
+])
+
 // ─── App lifecycle ────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null)
+
+  // Serve local video files via localvideo:// with range-request support (seekable)
+  protocol.handle('localvideo', (request) => {
+    let filePath = decodeURIComponent(new URL(request.url).pathname)
+    // On Windows the pathname has a leading slash before the drive letter: /C:/...
+    if (process.platform === 'win32' && /^\/[a-zA-Z]:/.test(filePath)) {
+      filePath = filePath.slice(1)
+    }
+    return net.fetch('file:///' + filePath.replace(/\\/g, '/'), { headers: request.headers })
+  })
+
   createWindow()
 
   app.on('activate', () => {
@@ -508,5 +556,6 @@ app.on('before-quit', () => {
   ipcMain.removeAllListeners('get-settings')
   ipcMain.removeAllListeners('set-data-path')
   ipcMain.removeAllListeners('browse-for-folder')
+  ipcMain.removeAllListeners('browse-for-video')
   ipcMain.removeAllListeners('run-csharp')
 })

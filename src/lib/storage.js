@@ -40,6 +40,18 @@ export async function browseForFolder() {
   return api().browseForFolder()
 }
 
+export async function browseForPdf() {
+  return api().browseForPdf()
+}
+
+export async function browseForVideo() {
+  return api().browseForVideo()
+}
+
+export async function readPdf(filePath) {
+  return api().readPdf(filePath)
+}
+
 // ─── Convenience helpers ──────────────────────────────────────────────────────
 
 export async function addUser(user) {
@@ -139,13 +151,17 @@ export async function resetTrainingItems() {
   return api().resetTrainingItems()
 }
 
-export async function saveTrainingItemMeta(itemId, { title, description, youtubeUrl }) {
+export async function saveTrainingItemMeta(itemId, { title, description, youtubeUrl, pdfPath }) {
   const data = await readData()
   const item = data.trainingItems.find((i) => i.id === itemId)
   if (!item) return { success: false, error: 'Item not found' }
   item.title = title
   item.description = description
   item.youtubeUrl = youtubeUrl
+  if (pdfPath !== undefined) {
+    if (pdfPath) item.pdfPath = pdfPath
+    else delete item.pdfPath
+  }
   return writeData(data)
 }
 

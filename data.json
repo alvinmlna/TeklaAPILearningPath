@@ -5,445 +5,390 @@
     {
       "id": "pf-1",
       "category": "Programming Fundamental",
-      "title": "Variable",
-      "description": "Learn how to declare, assign, and use variables to store data in C#.",
-      "youtubeUrl": "",
+      "title": "Type of Application",
+      "description": "Understand the different types of applications you can build with C# — console, desktop, web, and more. Learn where each type is used and how to choose the right one for your project.",
+      "youtubeUrl": "https://youtu.be/A37-3lflh8I",
       "codeChallenge": {
-        "title": "Sum of Two Numbers",
-        "prompt": "Read two integers, each on its own line, and print their sum.\n\nExample:\nInput: 3 (first line) and 5 (second line)\nOutput: 8",
-        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int a = int.Parse(Console.ReadLine());\n        int b = int.Parse(Console.ReadLine());\n\n        // TODO: Calculate the sum and print it\n\n    }\n}",
+        "title": "Hello, Console!",
+        "prompt": "Print the following two lines exactly:\nHello, World!\nI am learning C#.",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        // TODO: Print two lines\n\n    }\n}",
         "testCases": [
-          { "input": "3\n5",   "expected": "8" },
-          { "input": "10\n20", "expected": "30" },
-          { "input": "0\n0",   "expected": "0" },
-          { "input": "-5\n3",  "expected": "-2" }
+          { "input": "", "expected": "Hello, World!\nI am learning C#." }
         ]
       }
     },
     {
       "id": "pf-2",
       "category": "Programming Fundamental",
-      "title": "If Else",
-      "description": "Conditional logic with if-else — decision-making in code.",
-      "youtubeUrl": "",
+      "title": "Intro",
+      "description": "Get started with C# programming. Understand the basic structure of a C# program, learn how to write your first lines of code, and discover the tools and environment you will be working with.",
+      "youtubeUrl": "https://youtu.be/A37-3lflh8I",
       "codeChallenge": {
-        "title": "Number Sign Checker",
-        "prompt": "Read one integer and print:\n- \"Positive\" if it is greater than zero\n- \"Negative\" if it is less than zero\n- \"Zero\" if it equals zero",
-        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int number = int.Parse(Console.ReadLine());\n\n        // TODO: Write your if-else logic here\n\n    }\n}",
+        "title": "Full Name Greeter",
+        "prompt": "Read two lines — the first name on the first line, and the last name on the second line.\nPrint: Hello, [FirstName] [LastName]!",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string firstName = Console.ReadLine();\n        string lastName  = Console.ReadLine();\n\n        // TODO: Print the greeting\n\n    }\n}",
         "testCases": [
-          { "input": "5",   "expected": "Positive" },
-          { "input": "-3",  "expected": "Negative" },
-          { "input": "0",   "expected": "Zero" },
-          { "input": "100", "expected": "Positive" },
-          { "input": "-1",  "expected": "Negative" }
+          { "input": "John\nDoe",     "expected": "Hello, John Doe!" },
+          { "input": "Alice\nSmith",  "expected": "Hello, Alice Smith!" },
+          { "input": "Tekla\nUser",   "expected": "Hello, Tekla User!" }
         ]
       }
     },
     {
       "id": "pf-3",
       "category": "Programming Fundamental",
-      "title": "Switch",
-      "description": "Using switch-case for multi-branch conditionals efficiently.",
-      "youtubeUrl": "",
+      "title": "Data Type",
+      "description": "Explore the built-in data types in C# — int, double, bool, string, and more. Learn how to choose the right type for your data and how C# handles type conversion.",
+      "youtubeUrl": "https://youtu.be/A37-3lflh8I",
       "codeChallenge": {
-        "title": "Day of the Week",
-        "prompt": "Read an integer (1–7) and print the corresponding day name.\n1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday,\n5 = Friday, 6 = Saturday, 7 = Sunday.\nFor any other number, print \"Invalid\".",
-        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int day = int.Parse(Console.ReadLine());\n\n        // TODO: Use a switch statement to print the day name\n\n    }\n}",
+        "title": "Temperature Converter",
+        "prompt": "Read a Celsius temperature as an integer.\nPrint the equivalent Fahrenheit value using the formula: F = C × 9 / 5 + 32\n\nExample:\nInput: 100\nOutput: 212",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int celsius = int.Parse(Console.ReadLine());\n\n        // TODO: Calculate and print the Fahrenheit value\n\n    }\n}",
         "testCases": [
-          { "input": "1", "expected": "Monday" },
-          { "input": "3", "expected": "Wednesday" },
-          { "input": "5", "expected": "Friday" },
-          { "input": "7", "expected": "Sunday" },
-          { "input": "8", "expected": "Invalid" }
+          { "input": "0",    "expected": "32" },
+          { "input": "100",  "expected": "212" },
+          { "input": "-40",  "expected": "-40" },
+          { "input": "37",   "expected": "98" }
         ]
       }
     },
     {
       "id": "pf-4",
       "category": "Programming Fundamental",
-      "title": "Loop",
-      "description": "Repeating tasks with for, while, and do-while loops.",
-      "youtubeUrl": "",
+      "title": "Variables",
+      "description": "Learn how to declare, assign, and use variables to store and manage data in your programs. Understand naming conventions, scope, and how variables make your code flexible and reusable.",
+      "youtubeUrl": "https://youtu.be/IxBMVztdlr4",
       "codeChallenge": {
-        "title": "Count to N",
-        "prompt": "Read one integer N and print all numbers from 1 to N, each on its own line.",
-        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n\n        // TODO: Print numbers from 1 to n using a loop\n\n    }\n}",
+        "title": "Age in Days",
+        "prompt": "Read the user's name on the first line and their age (integer) on the second line.\nPrint: [Name] is approximately [age * 365] days old.\n\nExample:\nInput: Alice (line 1), 25 (line 2)\nOutput: Alice is approximately 9125 days old.",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string name = Console.ReadLine();\n        int age = int.Parse(Console.ReadLine());\n\n        // TODO: Calculate days and print the result\n\n    }\n}",
         "testCases": [
-          { "input": "3", "expected": "1\n2\n3" },
-          { "input": "5", "expected": "1\n2\n3\n4\n5" },
-          { "input": "1", "expected": "1" }
+          { "input": "Alice\n25", "expected": "Alice is approximately 9125 days old." },
+          { "input": "Bob\n30",   "expected": "Bob is approximately 10950 days old." },
+          { "input": "Alvin\n1",  "expected": "Alvin is approximately 365 days old." }
         ]
       }
     },
     {
       "id": "pf-5",
       "category": "Programming Fundamental",
-      "title": "Function",
-      "description": "Writing reusable blocks of code with methods and return values.",
-      "youtubeUrl": "",
+      "title": "String Manipulation",
+      "description": "Master working with text in C# — concatenation, string interpolation, Length, Substring, Replace, Split, ToUpper, and ToLower. Strings are everywhere in programming.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=VfmA5K93Cx0",
       "codeChallenge": {
-        "title": "Calculate Factorial",
-        "prompt": "Complete the Factorial method so that it returns N! (N factorial).\nRemember: 0! = 1, and N! = N × (N-1) × ... × 1.",
-        "starterCode": "using System;\n\nclass Program\n{\n    static long Factorial(int n)\n    {\n        // TODO: Return the factorial of n\n        return 0;\n    }\n\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        Console.WriteLine(Factorial(n));\n    }\n}",
+        "title": "Count Vowels",
+        "prompt": "Read one line of text.\nPrint the number of vowels (a, e, i, o, u — case-insensitive) in that text.\n\nExample:\nInput: Hello\nOutput: 2",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string text = Console.ReadLine();\n        int count = 0;\n\n        // TODO: Count vowels and print the result\n\n    }\n}",
         "testCases": [
-          { "input": "0",  "expected": "1" },
-          { "input": "1",  "expected": "1" },
-          { "input": "5",  "expected": "120" },
-          { "input": "10", "expected": "3628800" }
+          { "input": "Hello",            "expected": "2" },
+          { "input": "aeiou",            "expected": "5" },
+          { "input": "rhythm",           "expected": "0" },
+          { "input": "Tekla Structures", "expected": "5" },
+          { "input": "AEIOU",            "expected": "5" }
         ]
       }
     },
     {
       "id": "pf-6",
       "category": "Programming Fundamental",
-      "title": "List",
-      "description": "Storing and working with collections of data using List<T>.",
-      "youtubeUrl": "",
+      "title": "Arithmetic Operators",
+      "description": "Use the arithmetic operators +, -, *, /, and % to perform mathematical calculations in C#. Learn about operator precedence and how to work with different numeric types.",
+      "youtubeUrl": "https://youtu.be/k1ivOkhxxdw",
       "codeChallenge": {
-        "title": "Reverse a List",
-        "prompt": "Read N on the first line, then N integers each on their own line.\nPrint the numbers in reverse order, each on its own line.",
-        "starterCode": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        List<int> numbers = new List<int>();\n\n        for (int i = 0; i < n; i++)\n        {\n            numbers.Add(int.Parse(Console.ReadLine()));\n        }\n\n        // TODO: Print the numbers in reverse order\n\n    }\n}",
+        "title": "Simple Calculator",
+        "prompt": "Read two integers on separate lines, then an operator (+, -, *, /) on the third line.\nPrint the result. Use integer division for /.\nIf dividing by zero, print: Error\n\nExample:\nInput: 10 (line 1), 3 (line 2), / (line 3)\nOutput: 3",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int a  = int.Parse(Console.ReadLine());\n        int b  = int.Parse(Console.ReadLine());\n        string op = Console.ReadLine();\n\n        // TODO: Calculate and print the result\n\n    }\n}",
         "testCases": [
-          { "input": "3\n1\n2\n3",              "expected": "3\n2\n1" },
-          { "input": "5\n10\n20\n30\n40\n50",   "expected": "50\n40\n30\n20\n10" },
-          { "input": "1\n7",                     "expected": "7" }
+          { "input": "10\n3\n+",  "expected": "13" },
+          { "input": "10\n3\n-",  "expected": "7" },
+          { "input": "10\n3\n*",  "expected": "30" },
+          { "input": "10\n3\n/",  "expected": "3" },
+          { "input": "10\n0\n/",  "expected": "Error" }
         ]
       }
     },
     {
       "id": "pf-7",
       "category": "Programming Fundamental",
-      "title": "Filtering List",
-      "description": "Using LINQ and loops to filter collections based on conditions.",
-      "youtubeUrl": "",
+      "title": "User Input",
+      "description": "Read input from the user via the console using Console.ReadLine(). Learn how to convert string input into the data type you need using int.Parse(), double.Parse(), and Convert methods.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=_SXJyA605bI",
       "codeChallenge": {
-        "title": "Filter Even Numbers",
-        "prompt": "Read N on the first line, then N integers each on their own line.\nPrint only the even numbers, each on its own line.\nIf there are no even numbers, print nothing.",
-        "starterCode": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        List<int> numbers = new List<int>();\n\n        for (int i = 0; i < n; i++)\n        {\n            numbers.Add(int.Parse(Console.ReadLine()));\n        }\n\n        // TODO: Print only even numbers\n\n    }\n}",
+        "title": "Rectangle Area and Perimeter",
+        "prompt": "Read the width and height of a rectangle (integers) on separate lines.\nPrint the area on the first line and the perimeter on the second line.\n\nArea = width × height\nPerimeter = 2 × (width + height)\n\nExample:\nInput: 5 (line 1), 3 (line 2)\nOutput:\n15\n16",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int width  = int.Parse(Console.ReadLine());\n        int height = int.Parse(Console.ReadLine());\n\n        // TODO: Print area and perimeter\n\n    }\n}",
         "testCases": [
-          { "input": "5\n1\n2\n3\n4\n5",    "expected": "2\n4" },
-          { "input": "4\n10\n15\n20\n25",    "expected": "10\n20" },
-          { "input": "3\n1\n3\n5",           "expected": "" }
+          { "input": "5\n3",   "expected": "15\n16" },
+          { "input": "10\n4",  "expected": "40\n28" },
+          { "input": "1\n1",   "expected": "1\n4" },
+          { "input": "7\n7",   "expected": "49\n28" }
         ]
       }
     },
     {
       "id": "pf-8",
       "category": "Programming Fundamental",
-      "title": "String Manipulation",
-      "description": "Working with text — substring, replace, split, and formatting.",
-      "youtubeUrl": "",
+      "title": "If Statements",
+      "description": "Control the flow of your program with if, else if, and else blocks. Make decisions based on conditions and learn how conditional logic shapes how your program behaves.",
+      "youtubeUrl": "https://youtu.be/pSPQnXleaS8",
       "codeChallenge": {
-        "title": "Reverse and Uppercase",
-        "prompt": "Read one line of text.\nPrint it reversed and converted to uppercase.",
-        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string input = Console.ReadLine();\n\n        // TODO: Reverse the string and print it in uppercase\n\n    }\n}",
+        "title": "Grade Classifier",
+        "prompt": "Read an integer score (0–100).\nPrint the corresponding letter grade:\n- 90 to 100 → A\n- 80 to 89  → B\n- 70 to 79  → C\n- 60 to 69  → D\n- Below 60  → F",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int score = int.Parse(Console.ReadLine());\n\n        // TODO: Print the grade using if-else\n\n    }\n}",
         "testCases": [
-          { "input": "hello",  "expected": "OLLEH" },
-          { "input": "World",  "expected": "DLROW" },
-          { "input": "csharp", "expected": "PRAHSC" },
-          { "input": "Tekla",  "expected": "ALKET" }
+          { "input": "95",  "expected": "A" },
+          { "input": "82",  "expected": "B" },
+          { "input": "73",  "expected": "C" },
+          { "input": "65",  "expected": "D" },
+          { "input": "45",  "expected": "F" },
+          { "input": "100", "expected": "A" },
+          { "input": "60",  "expected": "D" }
+        ]
+      }
+    },
+    {
+      "id": "pf-9",
+      "category": "Programming Fundamental",
+      "title": "Logical Operators",
+      "description": "Combine multiple conditions using && (AND), || (OR), and ! (NOT). Logical operators let you build complex decision logic from simple conditions in a clear and readable way.",
+      "youtubeUrl": "https://youtu.be/uxS_0S0dNs8",
+      "codeChallenge": {
+        "title": "Leap Year Checker",
+        "prompt": "Read a year (integer).\nPrint \"Leap Year\" if it is a leap year, or \"Not a Leap Year\" otherwise.\n\nA year is a leap year if:\n- Divisible by 4 AND not divisible by 100\n- OR divisible by 400\n\nExample:\nInput: 2024\nOutput: Leap Year",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int year = int.Parse(Console.ReadLine());\n\n        // TODO: Use logical operators to check and print the result\n\n    }\n}",
+        "testCases": [
+          { "input": "2000", "expected": "Leap Year" },
+          { "input": "1900", "expected": "Not a Leap Year" },
+          { "input": "2024", "expected": "Leap Year" },
+          { "input": "2023", "expected": "Not a Leap Year" },
+          { "input": "2100", "expected": "Not a Leap Year" }
         ]
       }
     },
     {
       "id": "vs-1",
       "category": "Visual Studio",
-      "title": "Run & Debug",
-      "description": "F5 to run, setting breakpoints, and stepping through code to find issues.",
-      "youtubeUrl": ""
+      "title": "While Loops",
+      "description": "Repeat a block of code as long as a condition remains true using the while loop. Learn when to use while versus for loops, and how to avoid infinite loops with proper exit conditions.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=EyghyKO4BlA",
+      "codeChallenge": {
+        "title": "Accumulate Until Zero",
+        "prompt": "Read integers one at a time until you read 0.\nPrint the sum of all numbers entered, not including 0.\n\nExample:\nInput: 5, 3, 2, 0\nOutput: 10",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int sum = 0;\n\n        // TODO: Use a while loop to read until 0 and accumulate the sum\n\n        Console.WriteLine(sum);\n    }\n}",
+        "testCases": [
+          { "input": "5\n3\n2\n0",     "expected": "10" },
+          { "input": "1\n-1\n0",       "expected": "0" },
+          { "input": "0",              "expected": "0" },
+          { "input": "10\n20\n30\n0",  "expected": "60" }
+        ]
+      }
     },
     {
       "id": "vs-2",
       "category": "Visual Studio",
-      "title": "Solution Explorer",
-      "description": "Understanding the file and project structure of a .NET solution.",
-      "youtubeUrl": ""
+      "title": "For Loops",
+      "description": "Iterate a fixed number of times using the for loop. Understand the initialiser, condition, and iterator expression, and learn how to loop through sequences step by step.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=h4hY2hho73Q",
+      "codeChallenge": {
+        "title": "Multiplication Table",
+        "prompt": "Read an integer N.\nPrint its multiplication table from 1 to 10, one result per line in the format:\nN x i = result\n\nExample (N=3):\n3 x 1 = 3\n3 x 2 = 6\n...\n3 x 10 = 30",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n\n        // TODO: Use a for loop to print the multiplication table\n\n    }\n}",
+        "testCases": [
+          { "input": "3", "expected": "3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9\n3 x 4 = 12\n3 x 5 = 15\n3 x 6 = 18\n3 x 7 = 21\n3 x 8 = 24\n3 x 9 = 27\n3 x 10 = 30" },
+          { "input": "5", "expected": "5 x 1 = 5\n5 x 2 = 10\n5 x 3 = 15\n5 x 4 = 20\n5 x 5 = 25\n5 x 6 = 30\n5 x 7 = 35\n5 x 8 = 40\n5 x 9 = 45\n5 x 10 = 50" }
+        ]
+      }
     },
     {
       "id": "vs-3",
       "category": "Visual Studio",
-      "title": "NuGet",
-      "description": "Installing and managing third-party packages with NuGet Package Manager.",
-      "youtubeUrl": ""
+      "title": "Array",
+      "description": "Store multiple values of the same type in a fixed-size array. Learn how to declare, initialise, and access array elements by index, and how to iterate over them with a loop.",
+      "youtubeUrl": "https://youtu.be/IHMmPVEOT64",
+      "codeChallenge": {
+        "title": "Find Max and Min",
+        "prompt": "Read N on the first line, then N integers each on their own line.\nPrint the maximum value on the first line and the minimum value on the second line.\n\nExample:\nInput: 5, then 3 1 4 1 5\nOutput:\n5\n1",
+        "starterCode": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        int[] numbers = new int[n];\n\n        for (int i = 0; i < n; i++)\n        {\n            numbers[i] = int.Parse(Console.ReadLine());\n        }\n\n        // TODO: Find and print the max, then the min\n\n    }\n}",
+        "testCases": [
+          { "input": "5\n3\n1\n4\n1\n5", "expected": "5\n1" },
+          { "input": "3\n10\n20\n15",     "expected": "20\n10" },
+          { "input": "1\n42",             "expected": "42\n42" },
+          { "input": "4\n-5\n-1\n-3\n-9","expected": "-1\n-9" }
+        ]
+      }
     },
     {
       "id": "vs-4",
       "category": "Visual Studio",
-      "title": "References",
-      "description": "Adding references to external assemblies and understanding project dependencies.",
-      "youtubeUrl": ""
+      "title": "Foreach Loops",
+      "description": "Iterate through every element in a collection cleanly with the foreach loop. It is safer and more readable than manual index loops when you do not need to modify elements during iteration.",
+      "youtubeUrl": "https://youtu.be/WhACXlObR8s",
+      "codeChallenge": {
+        "title": "Count and Sum Even Numbers",
+        "prompt": "Read N on the first line, then N integers each on their own line.\nPrint the count of even numbers on the first line and their sum on the second line.\n\nExample:\nInput: 5, then 1 2 3 4 5\nOutput:\n2\n6",
+        "starterCode": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        List<int> numbers = new List<int>();\n\n        for (int i = 0; i < n; i++)\n        {\n            numbers.Add(int.Parse(Console.ReadLine()));\n        }\n\n        int count = 0;\n        int sum   = 0;\n\n        // TODO: Use foreach to count and sum even numbers\n\n        Console.WriteLine(count);\n        Console.WriteLine(sum);\n    }\n}",
+        "testCases": [
+          { "input": "5\n1\n2\n3\n4\n5",    "expected": "2\n6" },
+          { "input": "4\n10\n15\n20\n25",    "expected": "2\n30" },
+          { "input": "3\n1\n3\n5",           "expected": "0\n0" }
+        ]
+      }
     },
     {
       "id": "vs-5",
       "category": "Visual Studio",
-      "title": "Github",
-      "description": "Using Git and GitHub inside Visual Studio for version control and collaboration.",
-      "youtubeUrl": ""
+      "title": "Methods",
+      "description": "Break your code into reusable, named blocks using methods. Learn how to define, call, and pass arguments to methods so your programs stay organised and easy to maintain.",
+      "youtubeUrl": "https://youtu.be/IPpEefuFiVM",
+      "codeChallenge": {
+        "title": "Palindrome Checker",
+        "prompt": "Complete the IsPalindrome method so it returns true if the word is the same forwards and backwards (case-insensitive).\nRead one word and print \"Yes\" or \"No\".\n\nExample:\nInput: racecar\nOutput: Yes",
+        "starterCode": "using System;\n\nclass Program\n{\n    static bool IsPalindrome(string s)\n    {\n        // TODO: Return true if s is a palindrome (case-insensitive)\n        return false;\n    }\n\n    static void Main()\n    {\n        string word = Console.ReadLine();\n        Console.WriteLine(IsPalindrome(word) ? \"Yes\" : \"No\");\n    }\n}",
+        "testCases": [
+          { "input": "racecar", "expected": "Yes" },
+          { "input": "hello",   "expected": "No" },
+          { "input": "Level",   "expected": "Yes" },
+          { "input": "Madam",   "expected": "Yes" },
+          { "input": "world",   "expected": "No" }
+        ]
+      }
     },
     {
       "id": "vs-6",
       "category": "Visual Studio",
-      "title": "Visual Studio Quiz",
-      "description": "Test your Visual Studio knowledge before moving on.",
-      "youtubeUrl": "",
-      "quizOnly": true,
-      "quiz": {
-        "passMark": 80,
-        "questions": [
-          {
-            "id": "vs-q1",
-            "question": "What keyboard shortcut starts debugging in Visual Studio?",
-            "options": ["F4", "F5", "F6", "F7"],
-            "correctIndex": 1
-          },
-          {
-            "id": "vs-q2",
-            "question": "What shortcut adds or removes a breakpoint on the current line?",
-            "options": ["F8", "F9", "F10", "F11"],
-            "correctIndex": 1
-          },
-          {
-            "id": "vs-q3",
-            "question": "Which panel shows the files and project structure of your solution?",
-            "options": ["Output", "Error List", "Solution Explorer", "Properties"],
-            "correctIndex": 2
-          },
-          {
-            "id": "vs-q4",
-            "question": "What does 'Step Over' (F10) do while debugging?",
-            "options": ["Stops debugging", "Runs to the next breakpoint", "Steps into a method call", "Executes the current line without entering method calls"],
-            "correctIndex": 3
-          },
-          {
-            "id": "vs-q5",
-            "question": "What is NuGet used for in Visual Studio?",
-            "options": ["Version control", "Installing third-party packages", "Running unit tests", "Building Docker containers"],
-            "correctIndex": 1
-          },
-          {
-            "id": "vs-q6",
-            "question": "Which keyboard shortcut builds the entire solution?",
-            "options": ["Ctrl+B", "Ctrl+F5", "Ctrl+Shift+B", "F6"],
-            "correctIndex": 2
-          },
-          {
-            "id": "vs-q7",
-            "question": "What does F11 do while debugging?",
-            "options": ["Step Over", "Step Into", "Step Out", "Continue"],
-            "correctIndex": 1
-          },
-          {
-            "id": "vs-q8",
-            "question": "Where can you see the current values of variables while debugging?",
-            "options": ["Solution Explorer", "Error List", "Locals or Watch window", "Output window"],
-            "correctIndex": 2
-          },
-          {
-            "id": "vs-q9",
-            "question": "What is a 'Reference' in a Visual Studio project?",
-            "options": ["A comment in the code", "A link to an external library or assembly", "A database connection string", "A Git branch"],
-            "correctIndex": 1
-          },
-          {
-            "id": "vs-q10",
-            "question": "What does 'Manage NuGet Packages' allow you to do?",
-            "options": ["Delete the project", "Change project build settings", "Install or uninstall packages", "Run automated tests"],
-            "correctIndex": 2
-          }
+      "title": "Return Keyword",
+      "description": "Understand how the return keyword sends a value back from a method to its caller. Learn how return types work and how returning early from a method can simplify your control flow.",
+      "youtubeUrl": "https://youtu.be/FaK5Nh20gVA",
+      "codeChallenge": {
+        "title": "FizzBuzz",
+        "prompt": "Read an integer N.\nFor each number from 1 to N, print on its own line:\n- \"FizzBuzz\" if divisible by both 3 and 5\n- \"Fizz\" if divisible by 3 only\n- \"Buzz\" if divisible by 5 only\n- The number itself otherwise",
+        "starterCode": "using System;\n\nclass Program\n{\n    static string FizzBuzz(int n)\n    {\n        // TODO: Return the correct FizzBuzz string for n\n        return \"\";\n    }\n\n    static void Main()\n    {\n        int limit = int.Parse(Console.ReadLine());\n        for (int i = 1; i <= limit; i++)\n        {\n            Console.WriteLine(FizzBuzz(i));\n        }\n    }\n}",
+        "testCases": [
+          { "input": "15", "expected": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz" },
+          { "input": "5",  "expected": "1\n2\nFizz\n4\nBuzz" }
+        ]
+      }
+    },
+    {
+      "id": "vs-7",
+      "category": "Visual Studio",
+      "title": "List",
+      "description": "Use the flexible List<T> collection to store a dynamic number of items. Learn to Add, Remove, search with Contains, and sort a list — making it far more powerful than a plain array.",
+      "youtubeUrl": "https://youtu.be/vQzREQUhGSA",
+      "codeChallenge": {
+        "title": "Unique Sorted Numbers",
+        "prompt": "Read N on the first line, then N integers each on their own line.\nPrint the unique values in ascending order, one per line.\n\nExample:\nInput: 5, then 3 1 3 2 1\nOutput:\n1\n2\n3",
+        "starterCode": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        int n = int.Parse(Console.ReadLine());\n        List<int> numbers = new List<int>();\n\n        for (int i = 0; i < n; i++)\n        {\n            numbers.Add(int.Parse(Console.ReadLine()));\n        }\n\n        // TODO: Remove duplicates, sort, and print\n\n    }\n}",
+        "testCases": [
+          { "input": "5\n3\n1\n3\n2\n1",   "expected": "1\n2\n3" },
+          { "input": "4\n10\n5\n10\n7",    "expected": "5\n7\n10" },
+          { "input": "3\n5\n5\n5",         "expected": "5" }
+        ]
+      }
+    },
+    {
+      "id": "vs-8",
+      "category": "Visual Studio",
+      "title": "Enums",
+      "description": "Define a named set of constants with an enum type. Enums make your code more readable and type-safe when working with a fixed set of values such as days, seasons, or status codes.",
+      "youtubeUrl": "https://youtu.be/3p0OJErAbEI",
+      "codeChallenge": {
+        "title": "Season Finder",
+        "prompt": "Complete the GetSeason method using the Season enum.\nRead a month number (1–12) and print the season.\n- Winter: December (12), January (1), February (2)\n- Spring: March (3), April (4), May (5)\n- Summer: June (6), July (7), August (8)\n- Autumn: September (9), October (10), November (11)",
+        "starterCode": "using System;\n\nclass Program\n{\n    enum Season { Spring, Summer, Autumn, Winter }\n\n    static Season GetSeason(int month)\n    {\n        // TODO: Return the correct Season value for the month\n        return Season.Winter;\n    }\n\n    static void Main()\n    {\n        int month = int.Parse(Console.ReadLine());\n        Console.WriteLine(GetSeason(month));\n    }\n}",
+        "testCases": [
+          { "input": "1",  "expected": "Winter" },
+          { "input": "3",  "expected": "Spring" },
+          { "input": "6",  "expected": "Summer" },
+          { "input": "9",  "expected": "Autumn" },
+          { "input": "12", "expected": "Winter" },
+          { "input": "5",  "expected": "Spring" }
         ]
       }
     },
     {
       "id": "wf-1",
       "category": "Windows Form",
-      "title": "Type of Application",
-      "description": "Understanding what a Windows Forms desktop application is and when to use it.",
-      "youtubeUrl": ""
+      "title": "How To Create A Windows Form App In .NET Framework Part 1",
+      "description": "A step-by-step guide to creating your first Windows Forms project in .NET Framework using Visual Studio. Learn how to set up the solution, add controls to your form, and run your first desktop application.",
+      "youtubeUrl": "https://youtu.be/5-LZF5X3g2s"
     },
     {
       "id": "wf-2",
       "category": "Windows Form",
-      "title": "How it Works",
-      "description": "The event-driven model — how forms, controls, and events interact at runtime.",
+      "title": "How To Create A Windows Form App In .NET Framework Part 3",
+      "description": "Continue building your Windows Forms application by adding pop-up dialogs using MessageBox and learning how to programmatically centre your application window on the screen at startup.",
       "youtubeUrl": ""
-    },
-    {
-      "id": "wf-3",
-      "category": "Windows Form",
-      "title": "How to Design a UI",
-      "description": "Using the Visual Studio designer to drag, drop, and configure controls.",
-      "youtubeUrl": ""
-    },
-    {
-      "id": "wf-4",
-      "category": "Windows Form",
-      "title": "Windows Form Quiz",
-      "description": "Test your Windows Forms knowledge before moving on.",
-      "youtubeUrl": "",
-      "quizOnly": true,
-      "quiz": {
-        "passMark": 80,
-        "questions": [
-          {
-            "id": "wf-q1",
-            "question": "What type of application is a Windows Forms app?",
-            "options": ["Web application", "Mobile application", "Desktop GUI application", "Console application"],
-            "correctIndex": 2
-          },
-          {
-            "id": "wf-q2",
-            "question": "Which base class does every Windows Form inherit from?",
-            "options": ["Application", "Control", "System.Windows.Forms.Form", "UserControl"],
-            "correctIndex": 2
-          },
-          {
-            "id": "wf-q3",
-            "question": "What is an 'event' in Windows Forms?",
-            "options": ["A database record", "An action triggered by user interaction such as clicking or typing", "A type of variable", "A file format"],
-            "correctIndex": 1
-          },
-          {
-            "id": "wf-q4",
-            "question": "How do you create a button click handler using the Visual Studio designer?",
-            "options": ["Write it manually only", "Right-click the button and choose Properties", "Double-click the button in the designer", "Drag from the Toolbox"],
-            "correctIndex": 2
-          },
-          {
-            "id": "wf-q5",
-            "question": "What does Application.Run() do in a Windows Forms app?",
-            "options": ["Compiles the application", "Closes the application", "Starts the message loop and shows the main form", "Connects to a database"],
-            "correctIndex": 2
-          },
-          {
-            "id": "wf-q6",
-            "question": "Which control displays text that the user cannot edit?",
-            "options": ["TextBox", "Label", "Button", "ComboBox"],
-            "correctIndex": 1
-          },
-          {
-            "id": "wf-q7",
-            "question": "What property sets the text shown in a Form's title bar?",
-            "options": ["Name", "Title", "Text", "Caption"],
-            "correctIndex": 2
-          },
-          {
-            "id": "wf-q8",
-            "question": "What file contains the auto-generated layout code created by the designer?",
-            "options": ["Program.cs", "App.config", "Form1.cs", "Form1.Designer.cs"],
-            "correctIndex": 3
-          }
-        ]
-      }
     },
     {
       "id": "ta-1",
       "category": "Tekla Open API",
-      "title": "How to Connect with Tekla",
-      "description": "Setting up your project and establishing a connection to a running Tekla Structures model.",
-      "youtubeUrl": ""
+      "title": "Intro",
+      "description": "An introduction to the Tekla Open API — discover what it is, what structural workflows you can automate, and how to configure your Visual Studio project to start writing Tekla plugins.",
+      "youtubeUrl": "https://youtu.be/SV3AtxH1mr8?list=PL_7U7MO-1tNZwtGQDNHXoyI48mKWB6eRA"
     },
     {
       "id": "ta-2",
       "category": "Tekla Open API",
-      "title": "Model Object and Picker Class",
-      "description": "Working with model objects and using the Picker class to select objects interactively.",
-      "youtubeUrl": ""
+      "title": "Connect with Tekla Model",
+      "description": "Learn how to establish a live connection from your C# application to a running Tekla Structures model using the Model class, and how to verify the connection status before accessing objects.",
+      "youtubeUrl": "https://youtu.be/nsiClaDYzxg?list=PL_7U7MO-1tNZwtGQDNHXoyI48mKWB6eRA"
     },
     {
       "id": "ta-3",
       "category": "Tekla Open API",
-      "title": "Read and Write UDA",
-      "description": "Reading and writing User Defined Attributes on Tekla model objects.",
-      "youtubeUrl": ""
+      "title": "Create First Beam",
+      "description": "Use the Tekla Open API to programmatically create a Beam object — define its start and end points and insert it into the active Tekla Structures model with a single method call.",
+      "youtubeUrl": "https://youtu.be/NfCmg3P8nQ4?list=PL_7U7MO-1tNZwtGQDNHXoyI48mKWB6eRA"
     },
     {
       "id": "ta-4",
       "category": "Tekla Open API",
-      "title": "Tekla Open API Quiz",
-      "description": "Test your Tekla Open API knowledge before moving on.",
-      "youtubeUrl": "",
-      "quizOnly": true,
-      "quiz": {
-        "passMark": 80,
-        "questions": [
-          {
-            "id": "ta-q1",
-            "question": "What is the main namespace for Tekla Structures API model objects?",
-            "options": ["Tekla.Structures", "Tekla.Structures.Model", "Tekla.API.Model", "Tekla.Structures.Drawing"],
-            "correctIndex": 1
-          },
-          {
-            "id": "ta-q2",
-            "question": "How do you check if your app is connected to Tekla Structures?",
-            "options": ["model.IsOpen()", "model.GetConnectionStatus()", "Tekla.Connect()", "model.Ping()"],
-            "correctIndex": 1
-          },
-          {
-            "id": "ta-q3",
-            "question": "What class represents a steel beam in the Tekla Structures API?",
-            "options": ["Column", "Part", "Beam", "SteelPart"],
-            "correctIndex": 2
-          },
-          {
-            "id": "ta-q4",
-            "question": "What method saves a new object into the Tekla model?",
-            "options": ["object.Save()", "object.Add()", "model.Add(object)", "object.Insert()"],
-            "correctIndex": 3
-          },
-          {
-            "id": "ta-q5",
-            "question": "What is a UDA (User Defined Attribute) in Tekla?",
-            "options": ["A custom UI window", "A custom data field attached to model objects", "A type of beam connection", "A drawing view"],
-            "correctIndex": 1
-          },
-          {
-            "id": "ta-q6",
-            "question": "Which class lets the user interactively pick objects from the Tekla model?",
-            "options": ["Selector", "ModelObjectSelector", "Picker", "ObjectPicker"],
-            "correctIndex": 2
-          },
-          {
-            "id": "ta-q7",
-            "question": "What method saves all pending changes back to the Tekla model?",
-            "options": ["model.Save()", "model.Apply()", "model.CommitChanges()", "model.Update()"],
-            "correctIndex": 2
-          },
-          {
-            "id": "ta-q8",
-            "question": "To read a string UDA from a model object, which method do you use?",
-            "options": ["object.GetUDA(\"name\", out value)", "object.GetUserProperty(\"name\", ref value)", "GetValue(\"name\")", "object.UDA.Get(\"name\")"],
-            "correctIndex": 1
-          }
-        ]
-      }
+      "title": "Change Profile and Material Grade",
+      "description": "Learn how to modify a beam's cross-section profile (e.g. HEA200) and material grade (e.g. S355) through the Tekla API after it has been inserted into the model.",
+      "youtubeUrl": "https://youtu.be/2I2mLic_QGI?list=PL_7U7MO-1tNZwtGQDNHXoyI48mKWB6eRA"
+    },
+    {
+      "id": "ta-5",
+      "category": "Tekla Open API",
+      "title": "Pick Two Points to Insert Beam",
+      "description": "Use the Picker class to let the user interactively select two points in the Tekla 3D view. Use those two picked points as the start and end position of a new beam inserted via the API.",
+      "youtubeUrl": "https://youtu.be/izWsch75kdc?list=PL_7U7MO-1tNZwtGQDNHXoyI48mKWB6eRA"
+    },
+    {
+      "id": "ta-6",
+      "category": "Tekla Open API",
+      "title": "Read and Insert UDA Value",
+      "description": "Read and write User Defined Attributes (UDAs) on Tekla model objects. UDAs are custom data fields used to store project-specific information — such as a part mark or fabrication status — directly on structural elements.",
+      "youtubeUrl": "https://youtu.be/izWsch75kdc?list=PL_7U7MO-1tNZwtGQDNHXoyI48mKWB6eRA"
     },
     {
       "id": "im-1",
       "category": "Intermediate",
-      "title": "Learn More About Github",
-      "description": "Branching, pull requests, merge conflicts, and team workflow with Git and GitHub.",
-      "youtubeUrl": ""
+      "title": "Github",
+      "description": "Learn professional Git workflows — branching, committing, pushing, pull requests, and resolving merge conflicts. GitHub is an essential skill for team collaboration and managing code across projects.",
+      "youtubeUrl": "https://youtu.be/oCvb-Q5lXb8"
     },
     {
       "id": "im-2",
       "category": "Intermediate",
-      "title": "Error Handling",
-      "description": "Using try-catch-finally, custom exceptions, and writing resilient code.",
-      "youtubeUrl": ""
+      "title": "Exception Handling",
+      "description": "Write resilient C# code using try-catch-finally blocks to handle runtime errors gracefully. Learn about common exception types, how to throw custom exceptions, and best practices for error handling.",
+      "youtubeUrl": "https://youtu.be/QqWfw_CFR6Q"
     },
     {
       "id": "im-3",
       "category": "Intermediate",
       "title": "Debugging Code",
-      "description": "Advanced debugging techniques — call stack, watch expressions, conditional breakpoints.",
+      "description": "Master debugging in Visual Studio — set breakpoints, step through code line by line, inspect variable values in the Watch and Locals windows, and systematically track down and fix logic errors.",
       "youtubeUrl": ""
     },
     {
       "id": "im-4",
       "category": "Intermediate",
-      "title": "3D Geometry Basics",
-      "description": "Points, vectors, coordinate systems, and basic transformations used in Tekla API.",
-      "youtubeUrl": ""
+      "title": "BackgroundWorker / Async",
+      "description": "Learn how to run long-running operations in the background without freezing the UI using BackgroundWorker and the modern async/await pattern. Essential for building responsive desktop applications.",
+      "youtubeUrl": "https://www.youtube.com/watch?v=bUuxr6vX0Qw"
     }
   ]
 }

@@ -3,7 +3,7 @@ import VideoPlayer from '../components/VideoPlayer'
 import UserAvatar from '../components/UserAvatar'
 import CodeChallenge from '../components/CodeChallenge'
 import Quiz from '../components/Quiz'
-import { markComplete, isCompleted, completedAt, getUsersOnNode } from '../lib/storage'
+import { markComplete, isCompleted, completedAt, getUsersOnNode, readPdf } from '../lib/storage'
 
 const CATEGORIES = ['Programming Fundamental', 'Visual Studio', 'Windows Form', 'Tekla Open API', 'Intermediate']
 
@@ -74,12 +74,34 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
   const [selectedItem, setSelectedItem] = useState(initialItem || trainingItems[0] || null)
   const [marking, setMarking] = useState(false)
   const [justMarked, setJustMarked] = useState(false)
-  const [activeTab, setActiveTab] = useState('video') // 'video' | 'code'
+  const [activeTab, setActiveTab] = useState('video') // 'video' | 'pdf' | 'code' | 'quiz'
+  const [pdfDataUrl, setPdfDataUrl] = useState(null)
+  const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfError, setPdfError] = useState(null)
 
   // Keep progress fresh when parent data changes
   useEffect(() => {
     setProgress(initialProgress)
   }, [initialProgress])
+
+  // Load PDF when PDF tab is active and item has a pdfPath
+  useEffect(() => {
+    if (activeTab !== 'pdf' || !selectedItem?.pdfPath) return
+    setPdfDataUrl(null)
+    setPdfError(null)
+    setPdfLoading(true)
+    readPdf(selectedItem.pdfPath).then((result) => {
+      if (result.success) {
+        setPdfDataUrl(`data:application/pdf;base64,${result.base64}`)
+      } else {
+        setPdfError(result.error || 'Failed to load PDF.')
+      }
+    }).catch((err) => {
+      setPdfError(err.message || 'Failed to load PDF.')
+    }).finally(() => {
+      setPdfLoading(false)
+    })
+  }, [activeTab, selectedItem?.pdfPath])
 
   // If initialItem changed from parent, update
   useEffect(() => {
@@ -98,10 +120,12 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
   const handleSelect = (item) => {
     setSelectedItem(item)
     setJustMarked(false)
-    if (item.quizOnly || (!item.youtubeUrl && item.quiz)) {
+    if (item.quizOnly || (!item.youtubeUrl && !item.pdfPath && item.quiz)) {
       setActiveTab('quiz')
-    } else if (!item.youtubeUrl && item.codeChallenge) {
+    } else if (!item.youtubeUrl && !item.pdfPath && item.codeChallenge) {
       setActiveTab('code')
+    } else if (item.pdfPath && !item.youtubeUrl) {
+      setActiveTab('pdf')
     } else {
       setActiveTab('video')
     }
@@ -316,6 +340,7 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
             const prevItem = selItemIdx > 0 ? selCatItems[selItemIdx - 1] : null
             const hasChallenge = !!selectedItem.codeChallenge
             const hasQuiz = !!selectedItem.quiz
+            const hasPdf = !!selectedItem.pdfPath
             const needsGate = hasChallenge || hasQuiz
             const showVideo = !selectedItem.quizOnly && !!selectedItem.youtubeUrl
 
@@ -423,6 +448,22 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                     </button>
                     )}
 
+                    {hasPdf && (
+                    <button
+                      onClick={() => setActiveTab('pdf')}
+                      className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                        activeTab === 'pdf'
+                          ? 'border-rose-500 text-rose-600'
+                          : 'border-transparent text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                      </svg>
+                      PDF
+                    </button>
+                    )}
+
                     {hasQuiz && (
                       <button
                         onClick={() => setActiveTab('quiz')}
@@ -492,6 +533,36 @@ export default function Training({ currentUser, data, initialItem, onBack, onRef
                           </div>
                         )}
                       </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'pdf' && hasPdf && (
+                    <div className="h-full flex flex-col">
+                      {pdfLoading && (
+                        <div className="flex items-center justify-center h-full gap-2 text-slate-400 text-sm">
+                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                          </svg>
+                          Loading PDF…
+                        </div>
+                      )}
+                      {pdfError && (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center">
+                            <p className="text-rose-500 text-sm font-medium mb-1">Failed to load PDF</p>
+                            <p className="text-slate-400 text-xs">{pdfError}</p>
+                            <p className="text-slate-300 text-xs mt-1 font-mono break-all max-w-sm">{selectedItem.pdfPath}</p>
+                          </div>
+                        </div>
+                      )}
+                      {pdfDataUrl && !pdfLoading && (
+                        <iframe
+                          src={pdfDataUrl}
+                          className="flex-1 w-full border-0"
+                          title={selectedItem.title}
+                        />
+                      )}
                     </div>
                   )}
 

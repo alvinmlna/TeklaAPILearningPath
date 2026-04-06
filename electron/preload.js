@@ -49,6 +49,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
    * @returns {Promise<string|null>}
    */
   browseForFolder: () => ipcRenderer.invoke('browse-for-folder'),
+  browseForPdf: () => ipcRenderer.invoke('browse-for-pdf'),
+  browseForVideo: () => ipcRenderer.invoke('browse-for-video'),
+  readPdf: (filePath) => ipcRenderer.invoke('read-pdf', filePath),
 
   /**
    * Replace trainingItems in the current data file with the bundled seed data.

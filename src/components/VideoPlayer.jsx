@@ -1,19 +1,34 @@
 import React, { useMemo } from 'react'
 
 /**
- * Embeds a YouTube video using youtube-nocookie.com.
- * Accepts a full YouTube URL or a bare video ID.
+ * Renders a YouTube embed or a local/network video file.
+ * For local paths (e.g. C:\... or \\server\share\...) a <video> tag is used
+ * via the localvideo:// Electron protocol which supports range requests (seeking).
  */
 export default function VideoPlayer({ url, className = '' }) {
-  const videoId = useMemo(() => extractYouTubeId(url), [url])
+  const isLocal = useMemo(() => isLocalPath(url), [url])
+  const videoId = useMemo(() => (!isLocal ? extractYouTubeId(url) : null), [url, isLocal])
 
-  if (!videoId) {
+  if (!url || (!isLocal && !videoId)) {
     return (
       <div className={`flex items-center justify-center bg-slate-100 rounded-2xl ${className}`}>
         <div className="text-center p-8">
           <span className="text-5xl">🎬</span>
           <p className="mt-3 text-slate-500 text-sm">No video URL provided</p>
         </div>
+      </div>
+    )
+  }
+
+  if (isLocal) {
+    return (
+      <div className={`relative overflow-hidden rounded-2xl bg-black ${className}`}>
+        <video
+          src={toLocalVideoUrl(url)}
+          controls
+          className="w-full h-full"
+          style={{ display: 'block' }}
+        />
       </div>
     )
   }
@@ -31,6 +46,23 @@ export default function VideoPlayer({ url, className = '' }) {
       />
     </div>
   )
+}
+
+/** Returns true for Windows absolute paths (C:\...) and UNC paths (\\server\...) */
+function isLocalPath(url) {
+  if (!url) return false
+  return /^[a-zA-Z]:[/\\]/.test(url) || url.startsWith('\\\\')
+}
+
+/** Convert a local file path to a localvideo:// URL for the Electron protocol handler */
+function toLocalVideoUrl(filePath) {
+  const normalized = filePath.replace(/\\/g, '/')
+  // UNC paths: \\server\share → //server/share → localvideo:////server/share/...
+  if (normalized.startsWith('//')) {
+    return 'localvideo:' + normalized
+  }
+  // Absolute paths: C:/... → localvideo:///C:/...
+  return 'localvideo:///' + normalized
 }
 
 function extractYouTubeId(url) {

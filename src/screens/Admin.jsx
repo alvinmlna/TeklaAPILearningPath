@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { addTrainingItem, deleteTrainingItem, saveItemQuiz, saveTrainingItemMeta, resetTrainingItems, setUserProgress, getSettings, setDataPath, browseForFolder } from '../lib/storage'
+import { addTrainingItem, deleteTrainingItem, saveItemQuiz, saveTrainingItemMeta, resetTrainingItems, setUserProgress, getSettings, setDataPath, browseForFolder, browseForPdf, browseForVideo } from '../lib/storage'
 
 const CATEGORIES = ['Programming Fundamental', 'Visual Studio', 'Windows Form', 'Tekla Open API', 'Intermediate']
 const PIN = '1873'
@@ -806,7 +806,7 @@ function AdminPanel({ data, onBack, onRefresh }) {
 
   const openEdit = (item) => {
     setEditingItemId(item.id)
-    setEditForm({ title: item.title, description: item.description || '', youtubeUrl: item.youtubeUrl || '' })
+    setEditForm({ title: item.title, description: item.description || '', youtubeUrl: item.youtubeUrl || '', pdfPath: item.pdfPath || '' })
     setEditMsg(null)
     setDeleteConfirm(null)
   }
@@ -825,6 +825,7 @@ function AdminPanel({ data, onBack, onRefresh }) {
         title: editForm.title.trim(),
         description: editForm.description.trim(),
         youtubeUrl: editForm.youtubeUrl.trim(),
+        pdfPath: editForm.pdfPath.trim(),
       })
       if (result.success) {
         setEditMsg({ type: 'ok', text: 'Saved.' })
@@ -1019,9 +1020,9 @@ function AdminPanel({ data, onBack, onRefresh }) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1.5">YouTube URL *</label>
-              <input type="url" value={form.youtubeUrl} onChange={(e) => setForm((f) => ({ ...f, youtubeUrl: e.target.value }))}
-                placeholder="https://www.youtube.com/watch?v=..."
+              <label className="block text-xs font-semibold text-slate-500 mb-1.5">Video URL / Local Path</label>
+              <input type="text" value={form.youtubeUrl} onChange={(e) => setForm((f) => ({ ...f, youtubeUrl: e.target.value }))}
+                placeholder="https://www.youtube.com/watch?v=... or C:\Videos\..."
                 className="w-full rounded-xl border-2 border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-400 transition-colors" />
             </div>
 
@@ -1034,7 +1035,7 @@ function AdminPanel({ data, onBack, onRefresh }) {
             </button>
           </form>
           <p className="mt-5 text-[11px] text-slate-400 leading-relaxed">
-            YouTube URL is optional — leave empty to hide the video tab for that item.
+            Video URL is optional — leave empty to hide the video tab. Accepts YouTube links or local/network file paths (e.g. C:\Videos\demo.mp4 or \\server\share\video.mp4).
           </p>
         </aside>
 
@@ -1102,7 +1103,7 @@ function AdminPanel({ data, onBack, onRefresh }) {
                           <p className="text-slate-400 text-xs mt-1 leading-relaxed line-clamp-2">{item.description}</p>
                         )}
                         {item.youtubeUrl && !isEditing && (
-                          <p className="text-slate-300 text-[10px] mt-1 truncate font-mono">{item.youtubeUrl}</p>
+                          <p className="text-slate-300 text-[10px] mt-1 truncate font-mono" title={item.youtubeUrl}>{item.youtubeUrl}</p>
                         )}
                       </div>
 
@@ -1193,16 +1194,74 @@ function AdminPanel({ data, onBack, onRefresh }) {
 
                         <div>
                           <label className="block text-xs font-semibold text-slate-500 mb-1">
-                            YouTube URL
-                            <span className="ml-1 font-normal text-slate-400">(leave empty to hide video tab)</span>
+                            Video URL / Local Path
+                            <span className="ml-1 font-normal text-slate-400">(YouTube URL or local file path — leave empty to hide video tab)</span>
                           </label>
+                          <div className="flex gap-2">
                           <input
                             type="text"
                             value={editForm.youtubeUrl}
                             onChange={(e) => setEditForm((f) => ({ ...f, youtubeUrl: e.target.value }))}
-                            placeholder="https://www.youtube.com/watch?v=..."
-                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:outline-none focus:border-indigo-400 transition-colors"
+                            placeholder="https://www.youtube.com/watch?v=... or C:\Videos\..."
+                            className="flex-1 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:outline-none focus:border-indigo-400 transition-colors"
                           />
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const p = await browseForVideo()
+                                if (p) setEditForm((f) => ({ ...f, youtubeUrl: p }))
+                              }}
+                              className="flex-shrink-0 px-3 py-2 rounded-xl border-2 border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                            >
+                              Browse…
+                            </button>
+                            {editForm.youtubeUrl && (
+                              <button
+                                type="button"
+                                onClick={() => setEditForm((f) => ({ ...f, youtubeUrl: '' }))}
+                                className="flex-shrink-0 px-2 py-2 rounded-xl text-slate-300 hover:text-rose-400 transition-colors"
+                                title="Remove video"
+                              >✕</button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1">
+                            PDF File
+                            <span className="ml-1 font-normal text-slate-400">(shown before code challenge)</span>
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={editForm.pdfPath}
+                              onChange={(e) => setEditForm((f) => ({ ...f, pdfPath: e.target.value }))}
+                              placeholder="C:\path\to\document.pdf"
+                              className="flex-1 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:outline-none focus:border-indigo-400 transition-colors"
+                            />
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const p = await browseForPdf()
+                                if (p) setEditForm((f) => ({ ...f, pdfPath: p }))
+                              }}
+                              className="flex-shrink-0 px-3 py-2 rounded-xl border-2 border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                            >
+                              Browse…
+                            </button>
+                            {editForm.pdfPath && (
+                              <button
+                                type="button"
+                                onClick={() => setEditForm((f) => ({ ...f, pdfPath: '' }))}
+                                className="flex-shrink-0 px-2 py-2 rounded-xl text-slate-300 hover:text-rose-400 transition-colors"
+                                title="Remove PDF"
+                              >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-3 pt-1">
