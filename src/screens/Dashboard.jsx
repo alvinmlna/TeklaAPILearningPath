@@ -268,7 +268,7 @@ export default function Dashboard({
 
         {/* ── Map (vertical scroll) ────────────────────────────────────────── */}
         <div className="flex-1 map-bg overflow-y-auto thin-scrollbar">
-          <div className="max-w-2xl mx-auto px-6 py-8 space-y-0">
+          <div className="max-w-2xl mx-auto px-6 py-8 pb-16">
 
             {/* Page header */}
             <div className="mb-6">
@@ -324,7 +324,7 @@ export default function Dashboard({
             })}
 
             {/* Finish milestone */}
-            <div className="mt-6 flex items-center gap-3">
+            <div className="mt-8 flex items-center gap-3">
               <div className="flex-1 h-px bg-slate-300" />
               <div className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border ${
                 allDone
